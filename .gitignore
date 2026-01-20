@@ -12,6 +12,7 @@ c-c++/temp
 # Ignore macOS system files
 .DS_Store
 backend/*.env
+backend/.env
 *.env
 //.env//
 
