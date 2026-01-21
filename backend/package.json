@@ -4,7 +4,8 @@
   "description": "This is my Real-Time Chat system Project.",
   "main": "src/app.js",
   "scripts": {
-    "test": "test"
+    "test": "nodemon src/server.js",
+    "start" : "node src/server.js"
   },
   "author": "Rajesh Pandit",
   "license": "ISC",
