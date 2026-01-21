@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Distributed Real-Time Chat Platform</title>
+    <title>NexusChat - Distributed Real-Time Chat Platform</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -31,6 +31,7 @@
             color: #1C1C1E;
             display: flex;
             min-height: 100vh;
+            overflow: hidden;
         }
 
         .container {
@@ -51,6 +52,8 @@
             display: flex;
             flex-direction: column;
             border-right: 1px solid #E5E5EA;
+            position: relative;
+            z-index: 10;
         }
 
         .user-profile {
@@ -110,12 +113,16 @@
         .search-box {
             width: 100%;
             padding: 12px 16px;
+            padding-left: 40px;
             border-radius: 10px;
             border: 1px solid #E5E5EA;
             background-color: #F2F2F7;
             font-size: 15px;
             outline: none;
             transition: border-color 0.3s;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238E8E93' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'%3E%3C/circle%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'%3E%3C/line%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: 12px center;
         }
 
         .search-box:focus {
@@ -157,6 +164,18 @@
             font-weight: bold;
             font-size: 18px;
             margin-right: 15px;
+            position: relative;
+        }
+
+        .online-indicator {
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: var(--success-color);
+            border: 2px solid white;
         }
 
         .chat-info {
@@ -204,20 +223,22 @@
             display: flex;
             flex-direction: column;
             background-color: white;
+            position: relative;
         }
 
         .chat-header {
             padding: 20px 24px;
             display: flex;
             align-items: center;
-            justify-content: space-between;
             border-bottom: 1px solid #E5E5EA;
             background-color: white;
+            min-height: 80px;
         }
 
         .chat-header-info {
             display: flex;
             align-items: center;
+            flex: 1;
         }
 
         .chat-header-info h3 {
@@ -242,6 +263,7 @@
             color: var(--gray-color);
             cursor: pointer;
             transition: color 0.2s;
+            position: relative;
         }
 
         .chat-action-btn:hover {
@@ -277,6 +299,7 @@
             border-radius: 18px;
             position: relative;
             word-wrap: break-word;
+            line-height: 1.4;
         }
 
         .message.received .message-bubble {
@@ -342,15 +365,15 @@
         .message-input-container {
             padding: 20px 24px;
             display: flex;
-            align-items: center;
+            align-items: flex-end;
             border-top: 1px solid #E5E5EA;
             background-color: white;
+            gap: 10px;
         }
 
         .input-actions {
             display: flex;
             gap: 15px;
-            margin-right: 15px;
         }
 
         .input-action-btn {
@@ -360,10 +383,17 @@
             color: var(--gray-color);
             cursor: pointer;
             transition: color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
         }
 
         .input-action-btn:hover {
             color: var(--primary-color);
+            background-color: #F2F2F7;
         }
 
         .message-input {
@@ -376,6 +406,8 @@
             transition: border-color 0.3s;
             resize: none;
             max-height: 120px;
+            font-family: inherit;
+            line-height: 1.4;
         }
 
         .message-input:focus {
@@ -389,17 +421,22 @@
             width: 48px;
             height: 48px;
             border-radius: 50%;
-            margin-left: 15px;
             cursor: pointer;
             font-size: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
             transition: background-color 0.3s;
+            flex-shrink: 0;
         }
 
         .send-btn:hover {
             background-color: #0056CC;
+        }
+
+        .send-btn:disabled {
+            background-color: #C7C7CC;
+            cursor: not-allowed;
         }
 
         /* Online users panel */
@@ -409,6 +446,7 @@
             border-left: 1px solid #E5E5EA;
             padding: 20px;
             overflow-y: auto;
+            position: relative;
         }
 
         .online-users h3 {
@@ -432,6 +470,14 @@
             display: flex;
             align-items: center;
             margin-bottom: 15px;
+            padding: 8px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .online-user:hover {
+            background-color: #F2F2F7;
         }
 
         .online-user-avatar {
@@ -445,6 +491,7 @@
             color: white;
             font-weight: bold;
             margin-right: 12px;
+            position: relative;
         }
 
         .online-user-info h4 {
@@ -484,6 +531,27 @@
             font-weight: 600;
         }
 
+        /* Mobile menu button */
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: var(--primary-color);
+            cursor: pointer;
+            margin-right: 15px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s;
+        }
+
+        .mobile-menu-btn:hover {
+            background-color: #F2F2F7;
+        }
+
         /* Responsive design */
         @media (max-width: 1024px) {
             .online-users {
@@ -491,7 +559,7 @@
             }
             
             .sidebar {
-                width: 300px;
+                width: 320px;
             }
         }
 
@@ -502,12 +570,17 @@
             }
             
             .sidebar {
+                position: fixed;
+                left: -100%;
+                top: 0;
+                bottom: 0;
                 width: 100%;
-                display: none;
+                z-index: 1000;
+                transition: left 0.3s ease;
             }
             
             .sidebar.active {
-                display: flex;
+                left: 0;
             }
             
             .chat-area {
@@ -519,13 +592,22 @@
             }
             
             .mobile-menu-btn {
+                display: flex;
+            }
+            
+            .overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background-color: rgba(0,0,0,0.5);
+                z-index: 999;
+            }
+            
+            .overlay.active {
                 display: block;
-                background: none;
-                border: none;
-                font-size: 24px;
-                color: var(--primary-color);
-                cursor: pointer;
-                margin-right: 15px;
             }
         }
 
@@ -555,12 +637,26 @@
 
         /* File sharing preview */
         .file-preview {
-            background-color: #F2F2F7;
+            background-color: rgba(255,255,255,0.2);
             border-radius: 10px;
             padding: 12px;
             margin-top: 8px;
             display: flex;
             align-items: center;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .message.sent .file-preview {
+            background-color: rgba(255,255,255,0.2);
+        }
+
+        .message.received .file-preview {
+            background-color: #F2F2F7;
+        }
+
+        .message.received .file-preview:hover {
+            background-color: #E5E5EA;
         }
 
         .file-icon {
@@ -599,12 +695,252 @@
             color: white;
             font-size: 10px;
         }
+
+        /* Attachments Modal */
+        .attachments-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .attachments-modal.active {
+            display: flex;
+        }
+
+        .attachments-content {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 24px;
+            width: 90%;
+            max-width: 400px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .attachments-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .attachments-header h3 {
+            font-size: 20px;
+            color: var(--dark-color);
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: var(--gray-color);
+            cursor: pointer;
+        }
+
+        .attachment-option {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .attachment-option:hover {
+            background-color: #F2F2F7;
+        }
+
+        .attachment-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            background-color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            margin-right: 15px;
+        }
+
+        .attachment-info h4 {
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .attachment-info p {
+            font-size: 14px;
+            color: var(--gray-color);
+        }
+
+        /* Chat Info Modal */
+        .chat-info-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chat-info-modal.active {
+            display: flex;
+        }
+
+        .chat-info-content {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 24px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .chat-info-header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .chat-info-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-color: var(--secondary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 32px;
+            font-weight: bold;
+            margin: 0 auto 15px;
+        }
+
+        .chat-info-details {
+            margin-bottom: 24px;
+        }
+
+        .chat-info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #E5E5EA;
+        }
+
+        .chat-info-label {
+            color: var(--gray-color);
+        }
+
+        .chat-info-value {
+            font-weight: 500;
+        }
+
+        .encryption-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background-color: #34C75920;
+            color: var(--success-color);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 16px 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 3000;
+            transform: translateX(120%);
+            transition: transform 0.3s ease;
+        }
+
+        .notification.active {
+            transform: translateX(0);
+        }
+
+        .notification-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+        }
+
+        .notification-content h4 {
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+
+        .notification-content p {
+            font-size: 14px;
+            color: var(--gray-color);
+        }
+
+        /* Loading indicator */
+        .loading-indicator {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #F2F2F7;
+            border-top-color: var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: var(--gray-color);
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
+
+    <!-- Overlay for mobile -->
+    <div class="overlay" id="overlay"></div>
+
     <div class="container">
         <!-- Sidebar with chats list -->
-        <div class="sidebar active" id="sidebar">
+        <div class="sidebar" id="sidebar">
             <div class="user-profile">
                 <div class="avatar" id="current-user-avatar">JD</div>
                 <div class="user-info">
@@ -709,17 +1045,117 @@
         </div>
     </div>
 
+    <!-- Attachments Modal -->
+    <div class="attachments-modal" id="attachments-modal">
+        <div class="attachments-content">
+            <div class="attachments-header">
+                <h3>Attach File</h3>
+                <button class="close-modal" id="close-attach-modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="attachment-option" id="attach-document">
+                <div class="attachment-icon">
+                    <i class="fas fa-file-pdf"></i>
+                </div>
+                <div class="attachment-info">
+                    <h4>Document</h4>
+                    <p>PDF, Word, Excel, PowerPoint</p>
+                </div>
+            </div>
+            <div class="attachment-option" id="attach-image">
+                <div class="attachment-icon">
+                    <i class="fas fa-image"></i>
+                </div>
+                <div class="attachment-info">
+                    <h4>Photo & Video</h4>
+                    <p>JPG, PNG, GIF, MP4</p>
+                </div>
+            </div>
+            <div class="attachment-option" id="attach-audio">
+                <div class="attachment-icon">
+                    <i class="fas fa-music"></i>
+                </div>
+                <div class="attachment-info">
+                    <h4>Audio</h4>
+                    <p>MP3, WAV, M4A</p>
+                </div>
+            </div>
+            <div class="attachment-option" id="attach-location">
+                <div class="attachment-icon">
+                    <i class="fas fa-map-marker-alt"></i>
+                </div>
+                <div class="attachment-info">
+                    <h4>Location</h4>
+                    <p>Share your current location</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chat Info Modal -->
+    <div class="chat-info-modal" id="chat-info-modal">
+        <div class="chat-info-content">
+            <div class="chat-info-header">
+                <div class="chat-info-avatar" id="chat-info-avatar">JS</div>
+                <h2 id="chat-info-title">Jane Smith</h2>
+                <p id="chat-info-subtitle">Direct Message • Last seen 2 min ago</p>
+            </div>
+            <div class="chat-info-details">
+                <div class="chat-info-item">
+                    <span class="chat-info-label">Chat ID</span>
+                    <span class="chat-info-value">#CHAT-001</span>
+                </div>
+                <div class="chat-info-item">
+                    <span class="chat-info-label">Created</span>
+                    <span class="chat-info-value">2024-01-15</span>
+                </div>
+                <div class="chat-info-item">
+                    <span class="chat-info-label">Messages</span>
+                    <span class="chat-info-value" id="chat-message-count">42</span>
+                </div>
+                <div class="chat-info-item">
+                    <span class="chat-info-label">Security</span>
+                    <span class="chat-info-value">
+                        End-to-End Encrypted
+                        <span class="encryption-badge">
+                            <i class="fas fa-lock"></i> Secure
+                        </span>
+                    </span>
+                </div>
+                <div class="chat-info-item">
+                    <span class="chat-info-label">Storage Node</span>
+                    <span class="chat-info-value">Cluster #3</span>
+                </div>
+            </div>
+            <button class="send-btn" style="width: 100%; margin-top: 20px;" id="close-chat-info">
+                <i class="fas fa-times"></i> Close
+            </button>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div class="notification" id="notification">
+        <div class="notification-icon">
+            <i class="fas fa-file-upload"></i>
+        </div>
+        <div class="notification-content">
+            <h4>File Sent</h4>
+            <p>design.pdf has been uploaded successfully</p>
+        </div>
+    </div>
+
     <script>
         // Sample data for demonstration
         const users = [
-            { id: 1, name: "Jane Smith", avatar: "JS", status: "online", lastSeen: "2 min ago" },
-            { id: 2, name: "Alex Johnson", avatar: "AJ", status: "online", lastSeen: "Just now" },
-            { id: 3, name: "Sarah Miller", avatar: "SM", status: "offline", lastSeen: "1 hour ago" },
-            { id: 4, name: "Robert Chen", avatar: "RC", status: "online", lastSeen: "5 min ago" },
-            { id: 5, name: "Team Alpha", avatar: "TA", status: "group", participants: 8 },
-            { id: 6, name: "Emily Davis", avatar: "ED", status: "offline", lastSeen: "Yesterday" },
-            { id: 7, name: "Mike Wilson", avatar: "MW", status: "online", lastSeen: "10 min ago" },
-            { id: 8, name: "Design Team", avatar: "DT", status: "group", participants: 12 }
+            { id: 1, name: "Jane Smith", avatar: "JS", status: "online", lastSeen: "2 min ago", chatId: "#CHAT-001" },
+            { id: 2, name: "Alex Johnson", avatar: "AJ", status: "online", lastSeen: "Just now", chatId: "#CHAT-002" },
+            { id: 3, name: "Sarah Miller", avatar: "SM", status: "offline", lastSeen: "1 hour ago", chatId: "#CHAT-003" },
+            { id: 4, name: "Robert Chen", avatar: "RC", status: "online", lastSeen: "5 min ago", chatId: "#CHAT-004" },
+            { id: 5, name: "Team Alpha", avatar: "TA", status: "group", participants: 8, chatId: "#GRP-005" },
+            { id: 6, name: "Emily Davis", avatar: "ED", status: "offline", lastSeen: "Yesterday", chatId: "#CHAT-006" },
+            { id: 7, name: "Mike Wilson", avatar: "MW", status: "online", lastSeen: "10 min ago", chatId: "#CHAT-007" },
+            { id: 8, name: "Design Team", avatar: "DT", status: "group", participants: 12, chatId: "#GRP-008" }
         ];
 
         const messages = {
@@ -751,6 +1187,7 @@
         let currentUser = { id: 0, name: "John Doe", avatar: "JD", status: "online" };
         let activeChatId = 1;
         let typingTimeout = null;
+        let isMobile = window.innerWidth <= 768;
 
         // DOM Elements
         const sidebar = document.getElementById('sidebar');
@@ -764,6 +1201,12 @@
         const activeChatParticipants = document.getElementById('active-chat-participants');
         const onlineUsersList = document.getElementById('online-users-list');
         const searchInput = document.getElementById('search-input');
+        const overlay = document.getElementById('overlay');
+        const attachBtn = document.getElementById('attach-btn');
+        const attachmentsModal = document.getElementById('attachments-modal');
+        const chatInfoBtn = document.getElementById('chat-info-btn');
+        const chatInfoModal = document.getElementById('chat-info-modal');
+        const notification = document.getElementById('notification');
 
         // Initialize the application
         function init() {
@@ -775,6 +1218,18 @@
             
             // Simulate real-time updates
             simulateRealTimeFeatures();
+            
+            // Handle window resize
+            window.addEventListener('resize', handleResize);
+        }
+
+        // Handle window resize
+        function handleResize() {
+            isMobile = window.innerWidth <= 768;
+            if (!isMobile && sidebar.classList.contains('active')) {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+            }
         }
 
         // Render the chats list
@@ -794,8 +1249,14 @@
                 chatItem.className = `chat-item ${isActive ? 'active' : ''}`;
                 chatItem.dataset.id = user.id;
                 
+                const onlineIndicator = user.status === 'online' && !user.participants ? 
+                    '<div class="online-indicator"></div>' : '';
+                
                 chatItem.innerHTML = `
-                    <div class="chat-avatar" style="background-color: ${getAvatarColor(user.avatar)}">${user.avatar}</div>
+                    <div class="chat-avatar" style="background-color: ${getAvatarColor(user.avatar)}">
+                        ${user.avatar}
+                        ${onlineIndicator}
+                    </div>
                     <div class="chat-info">
                         <h4>
                             ${user.name}
@@ -859,7 +1320,7 @@
                     const fileType = getFileType(fileExt);
                     
                     filePreview = `
-                        <div class="file-preview">
+                        <div class="file-preview" onclick="downloadFile('${fileName}')">
                             <div class="file-icon">
                                 <i class="fas fa-${fileType.icon}"></i>
                             </div>
@@ -869,13 +1330,13 @@
                             </div>
                         </div>
                     `;
-                    messageContent = '';
+                    messageContent = messageContent.replace('[FILE] ', '');
                 }
                 
                 messageElement.innerHTML = `
                     ${!isSent ? `<div class="message-sender">${message.sender}</div>` : ''}
                     <div class="message-bubble">
-                        ${messageContent}
+                        ${hasFile ? '' : messageContent}
                         ${filePreview}
                     </div>
                     <div class="message-time">
@@ -915,9 +1376,13 @@
             onlineUsers.forEach(user => {
                 const userElement = document.createElement('div');
                 userElement.className = 'online-user';
+                userElement.addEventListener('click', () => {
+                    switchChat(user.id);
+                });
                 userElement.innerHTML = `
                     <div class="online-user-avatar" style="background-color: ${getAvatarColor(user.avatar)}">
                         ${user.avatar}
+                        <div class="online-indicator"></div>
                     </div>
                     <div class="online-user-info">
                         <h4>${user.name}</h4>
@@ -943,8 +1408,9 @@
             }
             
             // Close mobile sidebar on mobile
-            if (window.innerWidth <= 768) {
+            if (isMobile) {
                 sidebar.classList.remove('active');
+                overlay.classList.remove('active');
             }
         }
 
@@ -970,6 +1436,7 @@
             renderMessages(activeChatId);
             messageInput.value = '';
             adjustTextareaHeight();
+            updateSendButton();
             
             // Simulate reply for Jane Smith (chat ID 1)
             if (activeChatId === 1) {
@@ -1035,6 +1502,11 @@
                 document.getElementById('message-latency').textContent = `${latency}ms`;
                 document.getElementById('server-load').textContent = `${load}%`;
                 document.getElementById('database-shard').textContent = `#${shard}`;
+                
+                // Update NexusChat status
+                const serverStatus = ['Connected', 'Syncing', 'Optimizing'];
+                const randomStatus = serverStatus[Math.floor(Math.random() * serverStatus.length)];
+                document.getElementById('nexus-status').innerHTML = `<i class="fas fa-server"></i> ${randomStatus} to Cluster #${shard}`;
             }, 5000);
             
             // Randomly update user statuses
@@ -1095,8 +1567,10 @@
 
         // Set up event listeners
         function setupEventListeners() {
+            // Send message
             sendBtn.addEventListener('click', sendMessage);
             
+            // Message input events
             messageInput.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
@@ -1106,35 +1580,41 @@
             
             messageInput.addEventListener('input', () => {
                 adjustTextareaHeight();
+                updateSendButton();
                 simulateTyping();
             });
             
+            // Mobile menu button
             mobileMenuBtn.addEventListener('click', () => {
                 sidebar.classList.toggle('active');
+                overlay.classList.toggle('active');
             });
             
-            // Attach file button
-            document.getElementById('attach-btn').addEventListener('click', () => {
-                const fileTypes = ['design.pdf', 'performance_report.xlsx', 'architecture.png', 'code_sample.js'];
-                const randomFile = fileTypes[Math.floor(Math.random() * fileTypes.length)];
-                
-                const newMessage = {
-                    id: messages[activeChatId] ? messages[activeChatId].length + 1 : 1,
-                    sender: "You",
-                    senderId: 0,
-                    content: `[FILE] ${randomFile}`,
-                    time: getCurrentTime(),
-                    status: 'sent'
-                };
-                
-                if (!messages[activeChatId]) {
-                    messages[activeChatId] = [];
-                }
-                
-                messages[activeChatId].push(newMessage);
-                renderMessages(activeChatId);
-                renderChatsList(searchInput.value);
+            // Overlay click
+            overlay.addEventListener('click', () => {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+                attachmentsModal.classList.remove('active');
+                chatInfoModal.classList.remove('active');
             });
+            
+            // Attach file button - FIXED
+            attachBtn.addEventListener('click', () => {
+                attachmentsModal.classList.add('active');
+                if (isMobile) overlay.classList.add('active');
+            });
+            
+            // Close attachments modal
+            document.getElementById('close-attach-modal').addEventListener('click', () => {
+                attachmentsModal.classList.remove('active');
+                overlay.classList.remove('active');
+            });
+            
+            // Attachment options
+            document.getElementById('attach-document').addEventListener('click', () => attachFile('document'));
+            document.getElementById('attach-image').addEventListener('click', () => attachFile('image'));
+            document.getElementById('attach-audio').addEventListener('click', () => attachFile('audio'));
+            document.getElementById('attach-location').addEventListener('click', attachLocation);
             
             // Emoji button
             document.getElementById('emoji-btn').addEventListener('click', () => {
@@ -1144,27 +1624,46 @@
                 messageInput.value += randomEmoji;
                 messageInput.focus();
                 adjustTextareaHeight();
+                updateSendButton();
             });
             
             // Video call button
             document.getElementById('video-call-btn').addEventListener('click', () => {
-                alert('Starting video call... (WebRTC integration would be implemented here)');
+                showNotification('Starting video call...', 'fas fa-video');
+                setTimeout(() => {
+                    alert('Video call started! (WebRTC integration would be implemented here)');
+                }, 500);
             });
             
             // Audio call button
             document.getElementById('audio-call-btn').addEventListener('click', () => {
-                alert('Starting audio call... (WebRTC integration would be implemented here)');
+                showNotification('Starting audio call...', 'fas fa-phone');
+                setTimeout(() => {
+                    alert('Audio call started! (WebRTC integration would be implemented here)');
+                }, 500);
             });
             
-            // Chat info button
-            document.getElementById('chat-info-btn').addEventListener('click', () => {
-                const activeChat = users.find(u => u.id === activeChatId);
-                alert(`Chat Info:\n\nName: ${activeChat.name}\nType: ${activeChat.participants ? 'Group Chat' : 'Direct Message'}\n${activeChat.participants ? `Participants: ${activeChat.participants}` : `Status: ${activeChat.status}`}\n\nThis chat is using end-to-end encryption.`);
+            // Chat info button - FIXED
+            chatInfoBtn.addEventListener('click', showChatInfo);
+            
+            // Close chat info modal
+            document.getElementById('close-chat-info').addEventListener('click', () => {
+                chatInfoModal.classList.remove('active');
+                overlay.classList.remove('active');
             });
             
             // Search functionality
             searchInput.addEventListener('input', (e) => {
                 renderChatsList(e.target.value);
+            });
+            
+            // Close modals with Escape key
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    attachmentsModal.classList.remove('active');
+                    chatInfoModal.classList.remove('active');
+                    overlay.classList.remove('active');
+                }
             });
         }
 
@@ -1174,6 +1673,127 @@
             document.getElementById('current-user-avatar').textContent = currentUser.avatar;
             document.getElementById('current-user-avatar').style.backgroundColor = getAvatarColor(currentUser.avatar);
             document.getElementById('current-user-status').textContent = currentUser.status.charAt(0).toUpperCase() + currentUser.status.slice(1);
+        }
+
+        // Attach file function
+        function attachFile(type) {
+            const files = {
+                document: ['design.pdf', 'specs.docx', 'budget.xlsx', 'presentation.pptx'],
+                image: ['screenshot.png', 'photo.jpg', 'diagram.svg', 'mockup.png'],
+                audio: ['recording.mp3', 'meeting.m4a', 'audio_note.wav']
+            };
+            
+            const randomFile = files[type][Math.floor(Math.random() * files[type].length)];
+            
+            const newMessage = {
+                id: messages[activeChatId] ? messages[activeChatId].length + 1 : 1,
+                sender: "You",
+                senderId: 0,
+                content: `[FILE] ${randomFile}`,
+                time: getCurrentTime(),
+                status: 'sent'
+            };
+            
+            if (!messages[activeChatId]) {
+                messages[activeChatId] = [];
+            }
+            
+            messages[activeChatId].push(newMessage);
+            renderMessages(activeChatId);
+            renderChatsList(searchInput.value);
+            
+            // Close modal and show notification
+            attachmentsModal.classList.remove('active');
+            overlay.classList.remove('active');
+            showNotification('File sent successfully', 'fas fa-file-upload', `${randomFile} has been uploaded`);
+        }
+
+        // Attach location
+        function attachLocation() {
+            const locations = [
+                "San Francisco, CA",
+                "New York, NY",
+                "London, UK",
+                "Tokyo, Japan"
+            ];
+            
+            const randomLocation = locations[Math.floor(Math.random() * locations.length)];
+            
+            const newMessage = {
+                id: messages[activeChatId] ? messages[activeChatId].length + 1 : 1,
+                sender: "You",
+                senderId: 0,
+                content: `📍 Shared location: ${randomLocation}`,
+                time: getCurrentTime(),
+                status: 'sent'
+            };
+            
+            if (!messages[activeChatId]) {
+                messages[activeChatId] = [];
+            }
+            
+            messages[activeChatId].push(newMessage);
+            renderMessages(activeChatId);
+            renderChatsList(searchInput.value);
+            
+            // Close modal
+            attachmentsModal.classList.remove('active');
+            overlay.classList.remove('active');
+            showNotification('Location shared', 'fas fa-map-marker-alt', `Location shared with ${users.find(u => u.id === activeChatId).name}`);
+        }
+
+        // Show chat info
+        function showChatInfo() {
+            const activeChat = users.find(u => u.id === activeChatId);
+            const chatMessages = messages[activeChatId] || [];
+            
+            // Update modal content
+            document.getElementById('chat-info-avatar').textContent = activeChat.avatar;
+            document.getElementById('chat-info-avatar').style.backgroundColor = getAvatarColor(activeChat.avatar);
+            document.getElementById('chat-info-title').textContent = activeChat.name;
+            
+            if (activeChat.participants) {
+                document.getElementById('chat-info-subtitle').textContent = `Group Chat • ${activeChat.participants} participants`;
+            } else {
+                document.getElementById('chat-info-subtitle').textContent = `Direct Message • ${activeChat.status === 'online' ? 'Online' : `Last seen ${activeChat.lastSeen}`}`;
+            }
+            
+            document.getElementById('chat-message-count').textContent = chatMessages.length;
+            
+            // Show modal
+            chatInfoModal.classList.add('active');
+            if (isMobile) overlay.classList.add('active');
+        }
+
+        // Show notification
+        function showNotification(title, icon, message = '') {
+            const notificationIcon = notification.querySelector('.notification-icon i');
+            const notificationTitle = notification.querySelector('.notification-content h4');
+            const notificationMessage = notification.querySelector('.notification-content p');
+            
+            notificationIcon.className = icon;
+            notificationTitle.textContent = title;
+            notificationMessage.textContent = message || title;
+            
+            notification.classList.add('active');
+            
+            setTimeout(() => {
+                notification.classList.remove('active');
+            }, 3000);
+        }
+
+        // Download file function
+        function downloadFile(filename) {
+            showNotification('Downloading file', 'fas fa-download', `${filename} is being downloaded`);
+            // In a real app, this would trigger an actual download
+            setTimeout(() => {
+                showNotification('Download complete', 'fas fa-check-circle', `${filename} downloaded successfully`);
+            }, 1500);
+        }
+
+        // Update send button state
+        function updateSendButton() {
+            sendBtn.disabled = messageInput.value.trim() === '';
         }
 
         // Helper functions
@@ -1200,9 +1820,16 @@
         function getFileType(ext) {
             const types = {
                 pdf: { icon: 'file-pdf', type: 'PDF Document' },
+                docx: { icon: 'file-word', type: 'Word Document' },
                 xlsx: { icon: 'file-excel', type: 'Excel Spreadsheet' },
+                pptx: { icon: 'file-powerpoint', type: 'Presentation' },
                 png: { icon: 'file-image', type: 'Image' },
                 jpg: { icon: 'file-image', type: 'Image' },
+                svg: { icon: 'file-image', type: 'Image' },
+                mp3: { icon: 'file-audio', type: 'Audio File' },
+                m4a: { icon: 'file-audio', type: 'Audio File' },
+                wav: { icon: 'file-audio', type: 'Audio File' },
+                mp4: { icon: 'file-video', type: 'Video File' },
                 js: { icon: 'file-code', type: 'JavaScript File' },
                 txt: { icon: 'file-alt', type: 'Text File' },
                 zip: { icon: 'file-archive', type: 'Archive' }
