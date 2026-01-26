@@ -8,10 +8,10 @@ const sendEmail = require("../utils/nodemailer");
 const asyncHandler = require("../utils/asyncHandler");
 
 const registerUser = asyncHandler(async function registerUser(req, res) {
-  const { username, email, password } = req.body;
+  const { firstName,lastName,username, email, password } = req.body;
 
   //Fields Check
-  if (!username || !email || !password) {
+  if (!firstName || !lastName || !username || !email || !password) {
     throw new AppError("All fields required", 400);
   }
   const userExists = await User.findOne({
@@ -23,6 +23,8 @@ const registerUser = asyncHandler(async function registerUser(req, res) {
   }
 
   const user = new User({
+    firstName,
+    lastName,
     username,
     email,
     password, //Plain psw (hashing will be done in UserModel)
@@ -116,5 +118,21 @@ async function verifyEmail(req,res){
   });
 }
 
+function verifyToken(req,res){
+  const token = req.headers.authorization;
+  if(!token){
+    return res.status(401).json({success : false});
+  }
 
-module.exports = { registerUser, loginUser, verifyEmail};
+  try{
+    jwt.verify(token,process.env.JWT_SECRET);
+    res.status(200).json({success : true});
+
+  }catch(err){
+    res.status(401).json({success : false});
+  }
+
+}
+
+
+module.exports = { registerUser, loginUser, verifyEmail,verifyToken};

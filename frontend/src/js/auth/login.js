@@ -1,3 +1,34 @@
+document.addEventListener("DOMContentLoaded", async () => {
+  const token = localStorage.getItem("token");
+
+  const loader = document.getElementById("loader");
+  const loginBox = document.getElementById("loginBox");
+
+  if (!token) {
+    loader.style.display = "none";
+    loginBox.style.display = "block";
+    return;
+  }
+  try {
+    const res = await fetch("http://localhost:5000/api/auth/verify-token", {
+      headers: {
+        Authorization: token,
+      },
+    });
+    const data = await res.json();
+    if (data.success) {
+      window.location.href = "public/dashboard.html";
+    } else {
+      loader.style.display = "none";
+      loginBox.style.display = "block";
+    }
+  } catch (err) {
+    console.log(err.message);
+    loader.style.display = "none";
+    loginBox.style.display = "block";
+  }
+});
+
 // Background animation
 function createBackgroundAnimation() {
   const bgAnimation = document.getElementById("bgAnimation");
@@ -169,10 +200,8 @@ document.addEventListener("DOMContentLoaded", function () {
   // Sign up link
   signupLink.addEventListener("click", function (e) {
     e.preventDefault();
-    showSuccess(
-      "Redirecting to the signup page...",
-    );
-    window.location.href = "/public/signUp.html"
+    showSuccess("Redirecting to the signup page...");
+    window.location.href = "/public/signUp.html";
   });
 
   // Social login buttons

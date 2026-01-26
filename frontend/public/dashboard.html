@@ -1199,7 +1199,7 @@
             background-color: #FF3B3020;
         }
 
-        /* Logout Confirmation Modal */
+        /* Logout Confirmation Modal
         .logout-modal .modal-content {
             text-align: center;
         }
@@ -1220,7 +1220,7 @@
             color: var(--gray-color);
             margin-bottom: 30px;
             line-height: 1.6;
-        }
+        } */
 
         /* Login Page Styles */
         .login-page {
@@ -1758,7 +1758,7 @@
         </div>
     </div>
 
-    <!-- Logout Confirmation Modal -->
+    <!-- Logout Confirmation Modal
     <div class="modal logout-modal" id="logout-modal">
         <div class="modal-content">
             <div class="logout-icon">
@@ -1778,7 +1778,7 @@
                 </button>
             </div>
         </div>
-    </div>
+    </div> -->
 
     <!-- Settings Modal -->
     <div class="modal" id="settings-modal">
@@ -1937,7 +1937,7 @@
         const logoutBtn = document.getElementById('logout-btn');
         const viewProfileBtn = document.getElementById('view-profile-btn');
         const userProfileModal = document.getElementById('user-profile-modal');
-        const logoutModal = document.getElementById('logout-modal');
+        // const logoutModal = document.getElementById('logout-modal');
         const notification = document.getElementById('notification');
         const attachBtn = document.getElementById('attach-btn');
         const attachmentsModal = document.getElementById('attachments-modal');
@@ -2462,9 +2462,13 @@
             // Logout button
             logoutBtn.addEventListener('click', (e) => {
                 e.preventDefault();
-                showLogoutConfirmation();
-                profileDropdown.classList.remove('active');
-                userProfile.classList.remove('active');
+                // showLogoutConfirmation();
+                // profileDropdown.classList.remove('active');
+                // userProfile.classList.remove('active');
+
+                localStorage.removeItem("token");
+                
+                window.location.href = "/"
             });
             
             // Settings button
@@ -2521,17 +2525,17 @@
                 overlay.classList.remove('active');
             });
             
-            // Logout modal
-            document.getElementById('cancel-logout-btn').addEventListener('click', () => {
-                logoutModal.classList.remove('active');
-                overlay.classList.remove('active');
-            });
+            // // Logout modal
+            // document.getElementById('cancel-logout-btn').addEventListener('click', () => {
+            //     logoutModal.classList.remove('active');
+            //     overlay.classList.remove('active');
+            // });
             
-            document.getElementById('confirm-logout-btn').addEventListener('click', () => {
-                logoutModal.classList.remove('active');
-                overlay.classList.remove('active');
-                toggleLoginState();
-            });
+            // document.getElementById('confirm-logout-btn').addEventListener('click', () => {
+            //     logoutModal.classList.remove('active');
+            //     overlay.classList.remove('active');
+            //     toggleLoginState();
+            // });
             
             // Attach file button
             attachBtn.addEventListener('click', () => {
@@ -2688,11 +2692,11 @@
             if (isMobile) overlay.classList.add('active');
         }
 
-        // Show logout confirmation modal
-        function showLogoutConfirmation() {
-            logoutModal.classList.add('active');
-            if (isMobile) overlay.classList.add('active');
-        }
+        // // Show logout confirmation modal
+        // function showLogoutConfirmation() {
+        //     logoutModal.classList.add('active');
+        //     if (isMobile) overlay.classList.add('active');
+        // }
 
         // Toggle dark mode
         function toggleDarkMode() {
@@ -2721,7 +2725,7 @@
         // Close all modals
         function closeAllModals() {
             userProfileModal.classList.remove('active');
-            logoutModal.classList.remove('active');
+            // logoutModal.classList.remove('active');
             attachmentsModal.classList.remove('active');
             chatInfoModal.classList.remove('active');
             settingsModal.classList.remove('active');

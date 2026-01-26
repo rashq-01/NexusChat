@@ -591,7 +591,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // Form submission (Step 2)
   document
     .getElementById("signupForm")
-    .addEventListener("submit", function (e) {
+    .addEventListener("submit", async function (e) {
       e.preventDefault();
 
       // Validate all fields
@@ -606,27 +606,40 @@ document.addEventListener("DOMContentLoaded", function () {
         createAccountButton.disabled = true;
         createAccountButton.innerHTML =
           '<div class="loading"></div> Creating Account...';
-
-        // Simulate API call to backend
-        setTimeout(() => {
-          // Simulate account creation in backend
-          console.log(
-            `[DEMO] Account created for: ${formData.username} (${formData.email})`,
+        try {
+          const response = await fetch(
+            "http://localhost:5000/api/auth/register",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                // firstName,lastName,username, email, password
+                firstName: formData.firstName,
+                lastName: formData.lastName,
+                username: formData.username,
+                email: formData.email,
+                password: formData.password,
+              }),
+            },
           );
-          console.log(
-            `[DEMO] User data would be saved to PostgreSQL shard #${Math.floor(Math.random() * 5) + 1}`,
-          );
 
-          // Simulate sending verification email via Nodemailer
+          const data = await response.json();
+
+          if (!data.success) {
+            alert(data.message);
+            return;
+          }
           sendVerificationEmail();
-
-          // Move to verification step
           goToStep(3);
 
           // Reset button state
           createAccountButton.disabled = false;
           createAccountButton.innerHTML = "Create Account";
-        }, 2000);
+        } catch (err) {
+          alert(err.message);
+        }
       } else {
         showMessage(
           "warning",
@@ -661,41 +674,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Continue to login button
   continueToLoginButton.addEventListener("click", function () {
-    alert(
-      `DEMO: Email verification flow complete!\n\nIn a real application:\n1. User clicks verification link in email\n2. Backend verifies token with Nodemailer\n3. User is redirected to login page\n4. User can now log in with credentials\n\nTry logging in with:\nUsername: ${formData.username}\nPassword: ${formData.password}`,
-    );
-
-    // Reset form for demo purposes
-    setTimeout(() => {
-      document.getElementById("signupForm").reset();
-      goToStep(1);
-
-      // Clear all validation messages
-      clearValidation(firstNameInput, firstNameValidation);
-      clearValidation(lastNameInput, lastNameValidation);
-      clearValidation(emailInput, emailValidation);
-      clearValidation(usernameInput, usernameValidation);
-      clearValidation(passwordInput, passwordValidation);
-      clearValidation(confirmPasswordInput, confirmPasswordValidation);
-      clearValidation(null, termsValidation);
-
-      strengthFill.style.width = "0%";
-      strengthText.textContent = "Password strength: Very weak";
-      strengthText.style.color = "";
-
-      verificationInfo.style.display = "none";
-
-      showMessage(
-        "success",
-        "Demo complete! You can create another account to test the verification flow again.",
-      );
-    }, 500);
+    window.location.href = "/";
   });
 
   // Login link
   loginLink.addEventListener("click", function (e) {
     e.preventDefault();
-    alert("In a real application, this would redirect to the login page.");
+    window.location.href = "/";
   });
 
   // Social login buttons

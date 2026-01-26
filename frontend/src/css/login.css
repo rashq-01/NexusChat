@@ -542,3 +542,9 @@ body {
     gap: 15px;
   }
 }
+
+@keyframes spin{
+  100%{
+    transform:rotate(360deg);
+  }
+}
