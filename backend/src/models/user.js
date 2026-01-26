@@ -27,30 +27,27 @@ const userSchema = new mongoose.Schema(
     lastSeen: {
       type: Date,
     },
-    emailVerificationToken : {
-        type : String
+    emailVerificationToken: {
+      type: String,
     },
-    emailVerificationExpires : {
-        type : Date
-    }
+    emailVerificationExpires: {
+      type: Date,
+    },
   },
   {
     timestamps: true,
   },
 );
 
-userSchema.pre("save",async function(next){
-    if(!this.isModified("password")){
-        return next();
-    }
+userSchema.pre("save", async function () {
+  if (!this.isModified("password")) return;
 
-    this.password = await bcrypt.hash(this.password,10);
-    next();
+  this.password = await bcrypt.hash(this.password, 10);
 });
 
-userSchema.methods.comparePassword = async function(enteredPassword){
-    return await bcrypt.compare(enteredPassword,this.password);
+userSchema.methods.comparePassword = async function (enteredPassword) {
+  return await bcrypt.compare(enteredPassword, this.password);
 };
 
-const User = mongoose.model("User",userSchema);
+const User = mongoose.model("User", userSchema);
 module.exports = User;
