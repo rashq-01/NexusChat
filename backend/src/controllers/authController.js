@@ -42,11 +42,53 @@ const registerUser = asyncHandler(async function registerUser(req, res) {
   await sendEmail({
     to: user.email,
     subject: "NexusChat Verification url",
-    html: `
-        <h2>Welcome to NexusChat"</h2>
-        <p>Click below to verify your Email : </p><br>
-        <a href="${verifyUrl}">Verify Email</a>
-        `,
+html: `
+<div style="background:#f8fafc;padding:40px 20px;font-family:Segoe UI,Roboto,Helvetica,Arial,sans-serif;">
+  <div style="max-width:520px;margin:auto;background:#ffffff;border-radius:12px;box-shadow:0 20px 40px rgba(0,0,0,0.1);overflow:hidden;">
+    
+    <!-- Header -->
+    <div style="background:linear-gradient(135deg,#2563eb 0%,#7c3aed 100%);padding:28px 24px;text-align:center;">
+      <h2 style="color:white;margin:0;font-size:22px;font-weight:600;">
+        Welcome to NexusChat 🚀
+      </h2>
+    </div>
+
+    <!-- Body -->
+    <div style="padding:32px 28px;color:#1e293b;">
+      <p style="margin:0 0 16px 0;font-size:16px;">
+        Hey there,
+      </p>
+
+      <p style="margin:0 0 24px 0;font-size:15px;color:#64748b;line-height:1.6;">
+        Thanks for signing up! Please verify your email address to activate your account and start chatting.
+      </p>
+
+      <!-- Button -->
+      <div style="text-align:center;margin:28px 0;">
+        <a href="${verifyUrl}"
+           style="
+             background:#2563eb;
+             color:white;
+             padding:14px 28px;
+             border-radius:12px;
+             text-decoration:none;
+             font-weight:600;
+             display:inline-block;
+             box-shadow:0 10px 25px rgba(0,0,0,0.05);
+           ">
+          Verify Email
+        </a>
+      </div>
+
+    <!-- Footer -->
+    <div style="background:#f1f5f9;padding:16px;text-align:center;font-size:12px;color:#64748b;">
+      © ${new Date().getFullYear()} NexusChat — Secure messaging made simple
+    </div>
+
+  </div>
+</div>
+`
+
   });
 
   res.status(201).json({
@@ -69,15 +111,15 @@ const loginUser = asyncHandler(async function loginUser(req, res) {
   if (!user) {
     throw new AppError("Invalid Credentials", 401);
   }
+  const isMatch = await user.comparePassword(password);
+  if (!isMatch) {
+    throw new AppError("Invalid Credentials", 401);
+  }
 
   if (!user.isVerified) {
     throw new AppError("Email not verified", 401);
   }
 
-  const isMatch = await user.comparePassword(password);
-  if (!isMatch) {
-    throw new AppError("Invalid Credentials", 401);
-  }
 
   const token = generateToken({ userId: user._id, username: user.username });
 
