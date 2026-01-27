@@ -25,6 +25,7 @@ function registerMessageHandler(socket, io) {
         chatId : chat._id,
         senderId,
         receiverId,
+        content,
         status : "sent"
     });
 
