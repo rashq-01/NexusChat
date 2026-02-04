@@ -157,7 +157,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // Show loading state
-    console.log("Before Fetch");
     loginButton.disabled = true;
     buttonText.innerHTML = '<div class="loading"></div> Signing in...';
     const response = await fetch(`http://localhost:5000/api/auth/login`, {
@@ -170,10 +169,8 @@ document.addEventListener("DOMContentLoaded", function () {
         password: password,
       }),
     });
-    console.log("After fetch");
 
     const data = await response.json();
-    console.log(data);
     if (!data.success) {
       showError(data.message);
       buttonText.textContent = "Sign In";
@@ -183,6 +180,7 @@ document.addEventListener("DOMContentLoaded", function () {
     showSuccess("Login successful! Redirecting to NexusChat...");
 
     localStorage.setItem("token", data.token);
+    localStorage.setItem("userCredentials", JSON.stringify(data.user));
 
     window.location.href = "/public/dashboard.html";
   });

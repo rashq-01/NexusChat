@@ -122,17 +122,20 @@ const loginUser = asyncHandler(async function loginUser(req, res) {
 
 
   const token = generateToken({ userId: user._id, username: user.username });
-
+  console.log(user);
   res.status(200).json({
     success : true,
     token,
     user: {
       id: user._id,
+      firstName : user.firstName,
+      lastName : user.lastName,
       username: user.username,
       email: user.email,
       isVerified: user.isVerified,
     },
   });
+
 });
 
 
