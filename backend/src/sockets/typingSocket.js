@@ -1,5 +1,5 @@
 
-const userSocket = require("./userSocket");
+const userSocket = require("./user-socketMap");
 
 function registerTypingHandler(socket,io){
 

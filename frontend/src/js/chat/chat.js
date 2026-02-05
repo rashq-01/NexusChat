@@ -1,21 +1,21 @@
-//Assuming 
-//socket -> connected socket.io client
-//currentUserId -> logged-in user id
-//currentChatUser -> receiver id (open chat)
-//messageList -> ul or div container for message
+
+import socket from "/src/js/chat/socket.js";
 
 
-//Send message
+const sendBtn = document.getElementById("send-btn");
+const messageInput = document.getElementById("message-input");
+const currentUSER = JSON.parse(localStorage.getItem("userCredentials"));
+
 sendBtn.addEventListener("click",()=>{
     const content = messageInput.value.trim();
     if(!content)return;
 
     socket.emit("send_message",{
-        receiverId : currentChatUserId,
+        receiverUsername : currentUSER.username,
         content,
     });
 
-    messageInput.value() = "";
+    // messageInput.value() = "";
 });
 
 messageInput.addEventListener("keydown",(e)=>{
@@ -24,34 +24,34 @@ messageInput.addEventListener("keydown",(e)=>{
     }
 });
 
-socket.on("receive_message",(message)=>{
-    const {senderId, content, chatId} = message;
+// socket.on("receive_message",(message)=>{
+//     const {senderId, content, chatId} = message;
 
-    if(senderId !== currentChatUserId){
-        //notification here
-        return;
-    }
+//     if(senderId !== currentChatUserId){
+//         //notification here
+//         return;
+//     }
 
-    appendMessage({
-        senderId,
-        content
+//     appendMessage({
+//         senderId,
+//         content
 
-    })
-})
+//     })
+// })
 
 
-function appendMessage({senderId,content,status}){
-    content = msgDiv = document.createElement("div");
-    msgDiv.className = senderId===currentUserId ? "msg outgoing":"msg incoming";
-    msgDiv.innerText = content;
+// function appendMessage({senderId,content,status}){
+//     content = msgDiv = document.createElement("div");
+//     msgDiv.className = senderId===currentUserId ? "msg outgoing":"msg incoming";
+//     msgDiv.innerText = content;
 
-    if(senderId===currentUserId){
-        const statusSpan = document.createElement("span");
-        statusSpan.className = "status";
-        statusSpan.innerHTML = status;
-        msgDiv.appendChild(statusSpan);
-    }
+//     if(senderId===currentUserId){
+//         const statusSpan = document.createElement("span");
+//         statusSpan.className = "status";
+//         statusSpan.innerHTML = status;
+//         msgDiv.appendChild(statusSpan);
+//     }
 
-    messageList.appendChild(msgDiv);
-    messageList.scrollTop = messageList.scrollHeight;
-}
+//     messageList.appendChild(msgDiv);
+//     messageList.scrollTop = messageList.scrollHeight;
+// }

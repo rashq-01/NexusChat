@@ -1,11 +1,11 @@
 const Message = require("../models/message");
 const Chat = require("../models/chat");
-const userSocket = require("./userSocket");
+const {userToSocket, socketToUser} = require("./user-socketMap");
 
 function registerMessageHandler(socket, io) {
-  socket.on("send_message", async ({receiverId,content}) => {
+  socket.on("send_message", async ({receiverUsername,content}) => {
 
-    const senderId = socket.user._id.toString();
+    const username = socket.user.username.toString();
 
     if(!content || !receiverId)return;
 

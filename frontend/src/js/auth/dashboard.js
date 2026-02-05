@@ -234,7 +234,11 @@ const messages = {
     },
   ],
 };
-
+const token = localStorage.getItem("token");
+if (!token) {
+  alert("Unauthorized. Please login again.");
+  window.location.href = "/";
+}
 // Current user data
 const currentUSER = JSON.parse(localStorage.getItem("userCredentials"));
 const currentUserData = {
@@ -543,7 +547,6 @@ function renderMessages(chatId) {
     const senderAvatar = isSent
       ? currentUser
       : users.find((u) => u.id === message.senderId);
-      console.log(getStatusIcon(message.status));
 
 
 
