@@ -13,6 +13,8 @@ sendBtn.addEventListener("click",()=>{
     socket.emit("send_message",{
         receiverUsername : currentUSER.username,
         content,
+        type : "text",
+
     });
 
     // messageInput.value() = "";
@@ -24,20 +26,22 @@ messageInput.addEventListener("keydown",(e)=>{
     }
 });
 
-// socket.on("receive_message",(message)=>{
-//     const {senderId, content, chatId} = message;
 
-//     if(senderId !== currentChatUserId){
-//         //notification here
-//         return;
-//     }
+socket.on("receive_message",(message)=>{
+    const {senderId, content, chatId} = message;
+    console.log(message);
 
-//     appendMessage({
-//         senderId,
-//         content
+    // if(senderId !== currentChatUserId){
+    //     //notification here
+    //     return;
+    // }
 
-//     })
-// })
+    // appendMessage({
+    //     senderId,
+    //     content
+
+    // })
+})
 
 
 // function appendMessage({senderId,content,status}){

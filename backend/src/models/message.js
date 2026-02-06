@@ -41,7 +41,11 @@ const messageSchema = new mongoose.Schema(
       ref: "User"
     }],
 
-    editedAt: Date,
+    status: {
+      type : String,
+      enum : ["sent","delivered","seen"],
+      default : "sent",
+    },
 
     deleted: {
       type: Boolean,
