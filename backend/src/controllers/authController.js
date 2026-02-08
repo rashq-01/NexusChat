@@ -120,12 +120,15 @@ const loginUser = asyncHandler(async function loginUser(req, res) {
     throw new AppError("Email not verified", 401);
   }
 
+  const friends = await User.find({
+    _id : {$ne : user._id}
+  }).select("-password -__v");
 
   const token = generateToken({ userId: user._id, username: user.username });
-  console.log(user);
   res.status(200).json({
     success : true,
     token,
+    friends,
     user: {
       id: user._id,
       firstName : user.firstName,

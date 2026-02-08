@@ -241,6 +241,8 @@ if (!token) {
 }
 // Current user data
 const currentUSER = JSON.parse(localStorage.getItem("userCredentials"));
+const friends = JSON.parse(localStorage.getItem("friends"));
+console.log(friends);
 const currentUserData = {
   id: 0,
   name: "John Doe",

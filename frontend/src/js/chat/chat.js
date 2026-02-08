@@ -43,19 +43,44 @@ socket.on("receive_message",(message)=>{
     // })
 })
 
+// Send a new message
+function sendMessage() {
+  const content = messageInput.value.trim();
+  if (!content) return;
 
-// function appendMessage({senderId,content,status}){
-//     content = msgDiv = document.createElement("div");
-//     msgDiv.className = senderId===currentUserId ? "msg outgoing":"msg incoming";
-//     msgDiv.innerText = content;
+  const newMessage = {
+    id: messages[activeChatId] ? messages[activeChatId].length + 1 : 1,
+    sender: "You",
+    senderId: 0,
+    content: content,
+    time: getCurrentTime(),
+    status: "sent",
+  };
 
-//     if(senderId===currentUserId){
-//         const statusSpan = document.createElement("span");
-//         statusSpan.className = "status";
-//         statusSpan.innerHTML = status;
-//         msgDiv.appendChild(statusSpan);
-//     }
+  if (!messages[activeChatId]) {
+    messages[activeChatId] = [];
+  }
 
-//     messageList.appendChild(msgDiv);
-//     messageList.scrollTop = messageList.scrollHeight;
-// }
+  messages[activeChatId].push(newMessage);
+  renderMessages(activeChatId);
+  messageInput.value = "";
+  adjustTextareaHeight();
+  updateSendButton();
+
+  // Update last message in chats list
+  renderChatsList(searchInput.value);
+
+  // Simulate reply for Jane Smith (chat ID 1)
+  if (activeChatId === 1) {
+    setTimeout(() => {
+      simulateReply();
+    }, 1000);
+  }
+
+  // Simulate reply for other chats
+  if (activeChatId !== 1 && Math.random() > 0.5) {
+    setTimeout(() => {
+      simulateOtherReply();
+    }, 2000);
+  }
+}

@@ -181,6 +181,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     localStorage.setItem("token", data.token);
     localStorage.setItem("userCredentials", JSON.stringify(data.user));
+    localStorage.setItem("friends",JSON.stringify(data.friends))
 
     window.location.href = "/public/dashboard.html";
   });
