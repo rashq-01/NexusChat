@@ -1,12 +1,13 @@
 const Message = require("../models/message")
+const User = require("../models/user")
 const Chat = require("../models/chat");
 const {userToSocket, socketToUser} = require("./user-socketMap");
 
 function registerMessageHandler(socket, io) {
   socket.on("send_message", async ({receiverUsername,content,type}) => {
+    console.log(receiverUsername,content,type);
 
     const username = socket.user.username.toString();
-    console.log(username,receiverUsername,content,type);
 
     if(!content || !receiverUsername)return;
 
@@ -26,6 +27,7 @@ function registerMessageHandler(socket, io) {
     let message = await Message.create({
         chatId : chat._id,
         senderId : username,
+        receiverId : receiverUsername,
         type,
         content,
     });
@@ -51,7 +53,7 @@ function registerMessageHandler(socket, io) {
         console.log("Message delivered");
     }
 
-    socket.emit("message_sent",{
+    socket.broadcast.emit("message_sent",{
         _id : message._id,
         chatId : chat._id,
         status : message.status,

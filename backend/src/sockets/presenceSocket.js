@@ -13,6 +13,8 @@ function presenceSocket(socket, io) {
   // Mapping
   userToSocket.get(username).add(socket.id);
   socketToUser.set(socket.id, username);
+  console.log(userToSocket);
+  console.log(socketToUser);
 
   socket.on("disconnect", async () => {
     const socketSet = userToSocket.get(username);
@@ -32,6 +34,8 @@ function presenceSocket(socket, io) {
       //   } catch (err) {
       //     console.log("Failed to update lastSeen");
       //   }
+      console.log(userToSocket);
+      console.log(socketToUser);
 
       socket.broadcast.emit("user_offline", {
         username,
