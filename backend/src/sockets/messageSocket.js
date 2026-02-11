@@ -44,6 +44,7 @@ function registerMessageHandler(socket, io) {
                 content,
                 status : "delivered",
                 createdAt : message.createdAt,
+                timestamp : message.createdAt
             });
         });
 

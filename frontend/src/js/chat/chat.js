@@ -1,18 +1,24 @@
-
 import socket from "/src/js/chat/socket.js";
-import { switchChat, updateSendButton} from "/src/js/auth/dashboard.js";
-import {activeChatId,users,setActiveChatId} from "/src/js/auth/chatState.js";
-
+import {
+  switchChat,
+  updateSendButton,
+  showNotification,
+} from "/src/js/auth/dashboard.js";
+import {
+  activeChatId,
+  users,
+  setActiveChatId,
+} from "/src/js/auth/chatState.js";
 // Get data from localStorage
 const currentUSER = JSON.parse(localStorage.getItem("userCredentials")) || {
   firstName: "John",
   lastName: "Doe",
-  email: "john.doe@example.com"
+  email: "john.doe@example.com",
 };
 
 // Current user data
 const currentUserData = {
-  id: "0",
+  id: currentUSER.username,
   name: `${currentUSER.firstName} ${currentUSER.lastName}`,
   avatar: `${currentUSER.firstName[0]}${currentUSER.lastName[0]}`,
   status: "online",
@@ -26,12 +32,12 @@ const currentUserData = {
   lastSync: "2 min ago",
   verified: true,
 };
-console.log(currentUserData)
+console.log(currentUserData);
 let currentUser = currentUserData;
 
 // Create dummy messages for each friend
 const messages = {};
-users.forEach(user => {
+users.forEach((user) => {
   messages[user.id] = generateDummyMessages(user);
 });
 
@@ -54,12 +60,15 @@ const sendBtn = document.getElementById("send-btn");
 const typingIndicator = document.getElementById("typing-indicator");
 const activeChatName = document.getElementById("active-chat-name");
 const activeChatAvatar = document.getElementById("active-chat-avatar");
-const activeChatParticipants = document.getElementById("active-chat-participants");
+const activeChatParticipants = document.getElementById(
+  "active-chat-participants",
+);
 const searchInput = document.getElementById("search-input");
 const overlay = document.getElementById("overlay");
 const username = document.querySelectorAll(".username");
-const currentUserAvatarText = document.querySelectorAll(".currentUserAvatarText");
-
+const currentUserAvatarText = document.querySelectorAll(
+  ".currentUserAvatarText",
+);
 
 function getCurrentTime() {
   const now = new Date();
@@ -71,15 +80,36 @@ function getAvatarColor(avatarText) {
     "#007AFF",
     "#5856D6",
     "#FF2D55",
-    "#FF9500",
+    "#28b4c4",
     "#34C759",
     "#5AC8FA",
-    "#FFCC00",
+    "#35c4a0",
     "#AF52DE",
   ];
   const index = avatarText.charCodeAt(0) % colors.length;
   return colors[index];
 }
+
+function getNameColor(text) {
+  const colors = [
+    "#FF6B6B",
+    "#4ECDC4",
+    "#FFD93D",
+    "#6C5CE7",
+    "#00B894",
+    "#FF9F43",
+    "#E84393",
+    "#0984E3",
+  ];
+
+  let hash = 0;
+  for (let i = 0; i < text.length; i++) {
+    hash = text.charCodeAt(i) + ((hash << 5) - hash);
+  }
+
+  return colors[Math.abs(hash) % colors.length];
+}
+
 
 function getStatusIcon(status) {
   switch (status) {
@@ -134,7 +164,7 @@ function generateDummyMessages(user) {
     `Let's catch up for coffee sometime.`,
     `Check out this interesting article I found.`,
     `Are you available for a quick call?`,
-    `Looking forward to working with you on this!`
+    `Looking forward to working with you on this!`,
   ];
 
   const messagesArray = [];
@@ -144,11 +174,12 @@ function generateDummyMessages(user) {
     const isSent = Math.random() > 0.5;
     messagesArray.push({
       id: Date.now() + i,
-      sender: isSent ? "You" : user.name,
-      senderId: isSent ? "0" : user.id,
-      content: messageContents[Math.floor(Math.random() * messageContents.length)],
+      sender: isSent ? currentUSER.username : user.name,
+      senderId: isSent ? currentUSER.username : user.id,
+      content:
+        messageContents[Math.floor(Math.random() * messageContents.length)],
       time: getCurrentTime(),
-      status: isSent ? "read" : "read"
+      status: isSent ? "read" : "read",
     });
   }
 
@@ -164,7 +195,8 @@ function updateCurrentUserInfo() {
   currentUserAvatarText.forEach((e) => {
     e.innerHTML = `${currentUSER.firstName[0]}${currentUSER.lastName[0]}`;
   });
-  document.getElementById("currentUserEmail").innerHTML = currentUSER.email || "john.doe@example.com";
+  document.getElementById("currentUserEmail").innerHTML =
+    currentUSER.email || "john.doe@example.com";
   currentUserAvatarText.forEach((e) => {
     e.innerHTML = `${currentUSER.firstName[0]}${currentUSER.lastName[0]}`;
     e.style.background = `linear-gradient(135deg, ${getAvatarColor(currentUSER.firstName[0] + currentUSER.lastName[0])}, ${getAvatarColor(currentUSER.firstName[0] + currentUSER.lastName[0])}80)`;
@@ -242,23 +274,33 @@ function renderChatsList(filter = "") {
     }
 
     const chatMessages = messages[user.id] || [];
-    const lastMessage = chatMessages.length > 0 ? chatMessages[chatMessages.length - 1] : null;
+    const lastMessage =
+      chatMessages.length > 0 ? chatMessages[chatMessages.length - 1] : null;
     const isActive = user.id === activeChatId;
-    const unreadCount = Math.random() > 0.7 ? Math.floor(Math.random() * 5) + 1 : 0;
+    const unreadCount =
+      Math.random() > 0.7 ? Math.floor(Math.random() * 5) + 1 : 0;
 
     const chatItem = document.createElement("div");
     chatItem.className = `chat-item ${isActive ? "active" : ""}`;
     chatItem.dataset.id = user.id;
 
-    const statusClass = user.status === "online" ? "online" : 
-                       user.status === "typing" ? "typing" : 
-                       user.status === "idle" ? "idle" : "offline";
+    const statusClass =
+      user.status === "online"
+        ? "online"
+        : user.status === "typing"
+          ? "typing"
+          : user.status === "idle"
+            ? "idle"
+            : "offline";
 
-    const onlineIndicator = user.status === "online" || user.status === "typing" ? 
-      `<div class="chat-status ${statusClass}"></div>` : "";
+    const onlineIndicator =
+      user.status === "online" || user.status === "typing"
+        ? `<div class="chat-status ${statusClass}"></div>`
+        : "";
 
-    const verifiedBadge = user.verified ? 
-      '<span class="verified-badge"><i class="fas fa-check-circle"></i></span>' : "";
+    const verifiedBadge = user.verified
+      ? '<span class="verified-badge"><i class="fas fa-check-circle"></i></span>'
+      : "";
 
     chatItem.innerHTML = `
       <div class="chat-avatar">
@@ -275,17 +317,24 @@ function renderChatsList(filter = "") {
         </div>
         <div class="chat-preview">
           <div class="chat-last-message">
-            ${lastMessage ? 
-              (lastMessage.senderId === "0" ? "You: " : "") + 
-              lastMessage.content.substring(0, 30) + 
-              (lastMessage.content.length > 30 ? "..." : "") : 
-              "No messages yet"}
+            ${
+              lastMessage
+                ? (lastMessage.senderId === currentUSER.username
+                    ? `${currentUSER.username}: `
+                    : "") +
+                  lastMessage.content.substring(0, 30) +
+                  (lastMessage.content.length > 30 ? "..." : "")
+                : "No messages yet"
+            }
             ${user.id === activeChatId && user.status === "typing" ? '<span style="color: var(--typing);"> is typing...</span>' : ""}
           </div>
           <div class="chat-meta">
             ${unreadCount > 0 ? `<div class="unread-count">${unreadCount}</div>` : ""}
-            ${!unreadCount && lastMessage && lastMessage.senderId === "0" ?
-              `<i class="fas ${getStatusIcon(lastMessage.status)} message-status ${lastMessage.status}"></i>` : ""}
+            ${
+              !unreadCount && lastMessage && lastMessage.senderId === currentUSER.username
+                ? `<i class="fas ${getStatusIcon(lastMessage.status)} message-status ${lastMessage.status}"></i>`
+                : ""
+            }
           </div>
         </div>
       </div>
@@ -321,10 +370,14 @@ function renderMessages(chatId) {
   activeChatAvatar.textContent = activeChat.avatar;
   activeChatAvatar.style.background = `linear-gradient(135deg, ${getAvatarColor(activeChat.avatar)}, ${getAvatarColor(activeChat.avatar)}80)`;
 
-  const statusText = activeChat.status === "online" ? "Online" :
-                    activeChat.status === "typing" ? "Typing..." :
-                    activeChat.status === "idle" ? "Idle" :
-                    `Last seen ${activeChat.lastSeen}`;
+  const statusText =
+    activeChat.status === "online"
+      ? "Online"
+      : activeChat.status === "typing"
+        ? "Typing..."
+        : activeChat.status === "idle"
+          ? "Idle"
+          : `Last seen ${activeChat.lastSeen}`;
 
   activeChatParticipants.innerHTML = `
     <span class="status-indicator ${activeChat.status}"></span>
@@ -352,7 +405,7 @@ function renderMessages(chatId) {
   messagesContainer.appendChild(dateElement);
 
   chatMessages.forEach((message) => {
-    const isSent = message.senderId === "0";
+    const isSent = message.senderId === currentUSER.username;
     const messageElement = document.createElement("div");
     messageElement.className = `message ${isSent ? "sent" : "received"}`;
 
@@ -378,16 +431,18 @@ function renderMessages(chatId) {
       `;
       messageContent = messageContent.replace("[FILE] ", "");
     }
-
-    const senderAvatar = isSent ? currentUser : users.find((u) => u.id === message.senderId);
-
+    const senderAvatar = isSent
+      ? currentUser
+      : users.find((u) => u.id === message.senderId);
+    const avatarText = senderAvatar?.avatar || "??";
+    console.log("Sender Avater : ",senderAvatar)
     messageElement.innerHTML = `
       <div class="message-avatar">
-        <div class="avatar-text" style="background: linear-gradient(135deg, ${getAvatarColor(senderAvatar.avatar)}, ${getAvatarColor(senderAvatar.avatar)}80)">${senderAvatar.avatar}</div>
+        <div class="avatar-text" style="background: linear-gradient(135deg, ${getAvatarColor(avatarText)}, ${getAvatarColor(avatarText)}80)">${senderAvatar.avatar}</div>
       </div>
       <div class="message-content">
         <div class="message-bubble">
-          ${!isSent && message.senderId !== "0" ? `<div class="message-sender">${message.sender}</div>` : ""}
+          ${!isSent && message.senderId !== "0" ? `<div class="message-sender" style="color: ${getNameColor(message.sender)}; font-weight: 600;">${message.sender}</div>` : ""}
           <div class="message-text">${hasFile ? "" : messageContent}</div>
           ${filePreview}
           <div class="message-time">
@@ -408,12 +463,82 @@ function renderMessages(chatId) {
     typingIndicator.style.display = "none";
   }
 
-  setTimeout(() => {
-    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-  }, 100);
+  messagesContainer.scrollTop = messagesContainer.scrollHeight;
 }
 
+function addNewMessage(chatId, messageData) {
+  // Adding to msg obj
+  if (!messages[chatId]) {
+    messages[chatId] = [];
+  }
 
+  messages[chatId].push(messageData);
+
+  if (chatId === activeChatId) {
+    renderMessages(chatId);
+  }
+  renderChatsList(searchInput.value);
+}
+
+function updateMessageStatus(chatId, messageId, newStatus) {
+  const chatMessages = messages[chatId];
+
+  if (chatMessages) {
+    const message = chatMessages.find((msg) => msg.id === messageId);
+    if (message) {
+      message.status = newStatus;
+
+      if (chatId === activeChatId) {
+        renderMessages(chatId);
+      }
+    }
+  }
+}
+
+function markmessagesAsRead(chatId) {
+  const chatMessages = messages[chatId];
+  if (chatMessages) {
+    chatMessages.forEach((msg) => {
+      if (msg.senderId !== currentUSER.username && msg.status !== "read") {
+        msg.status = "read";
+      }
+    });
+    if (chatId === activeChatId) {
+      renderChatsList(chatId);
+    }
+  }
+}
+
+function updateUserStatus(userId, newStatus, lastSeen = null) {
+  const user = users.find((u) => u.id === userId);
+  if (user) {
+    user.status = newStatus;
+    if (lastSeen) {
+      user.lastSeen = lastSeen;
+    }
+
+    // Update UI
+    renderChatsList(searchInput.value);
+    renderOnlineUsers();
+
+    // If this user is active chat, update their status
+    if (userId === activeChatId) {
+      const statusText =
+        newStatus === "online"
+          ? "Online"
+          : newStatus === "typing"
+            ? "Typing..."
+            : newStatus === "idle"
+              ? "Idle"
+              : `Last seen ${lastSeen || user.lastSeen}`;
+
+      activeChatParticipants.innerHTML = `
+        <span class="status-indicator ${newStatus}"></span>
+        ${statusText}
+      `;
+    }
+  }
+}
 
 // Send a new message
 function sendMessage() {
@@ -423,31 +548,29 @@ function sendMessage() {
   const activeChat = users.find((u) => u.id === activeChatId);
   if (!activeChat) return;
 
+
+
   const newMessage = {
     id: Date.now(),
-    sender: currentUSER.username,
-    senderId: "0",
+    sender: currentUser.name,
+    senderId: currentUSER.username,
     content: content,
     time: getCurrentTime(),
     status: "sent",
   };
+  addNewMessage(activeChatId, newMessage);
 
-  if (!messages[activeChatId]) {
-    messages[activeChatId] = [];
-  }
-
-  messages[activeChatId].push(newMessage);
-  renderMessages(activeChatId);
   messageInput.value = "";
   adjustTextareaHeight();
   updateSendButton();
 
-  renderChatsList(searchInput.value);
+  socket.emit("send_message", {
+    receiverUsername: activeChatId,
+    content,
+    type: "text",
+  });
 
-  // Simulate reply
-  setTimeout(() => {
-    simulateReply(activeChat);
-  }, 1000 + Math.random() * 2000);
+  socket.emit("typing_stop",{receiverUsername: activeChatId});
 }
 
 // Simulate a reply from the other person
@@ -462,7 +585,7 @@ function simulateReply(activeChat) {
     "Let's discuss this tomorrow.",
     "I agree with you.",
     "Have you considered...",
-    "Great point!"
+    "Great point!",
   ];
 
   const randomReply = replies[Math.floor(Math.random() * replies.length)];
@@ -480,43 +603,68 @@ function simulateReply(activeChat) {
   renderMessages(activeChatId);
   renderChatsList(searchInput.value);
 }
-console.log(activeChatId)
-sendBtn.addEventListener("click",()=>{
-    const content = messageInput.value.trim();
-    if(!content)return;
+console.log(activeChatId);
 
-    socket.emit("send_message",{
-        receiverUsername : activeChatId,
-        content,
-        type : "text",
-
-    });
-
-    // messageInput.value() = "";
+messageInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    sendBtn.click();
+  }
 });
 
-messageInput.addEventListener("keydown",(e)=>{
-    if(e.key==="Enter"){
-        sendBtn.click();
-    }
+function formatTime(timestamp) {
+  const date = new Date(timestamp);
+  return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+}
+socket.on("receive_message", (message) => {
+  const { senderId, content, chatId, timestamp, _id } = message;
+  console.log(message);
+
+  const newMessage = {
+    id: _id || Date.now(),
+    sender: users.find((u) => u.id === senderId)?.name || "Unknown",
+    senderId: senderId,
+    content: content,
+    time: formatTime(timestamp),
+    status: "delivered",
+  };
+
+  addNewMessage(senderId, newMessage);
+
+  if (senderId !== activeChatId) {
+    showNotification(
+      "New Message",
+      "info",
+      `New message from ${newMessage.sender}`,
+    );
+  }
 });
 
+socket.on("typing_start", (data) => {
+  const { username } = data;
+  updateUserStatus(username, "typing");
+});
 
-socket.on("receive_message",(message)=>{
-    const {senderId, content, chatId} = message;
-    console.log(message);
+socket.on("typing_stop", (data) => {
+  const { username } = data;
+  updateUserStatus(username, "online");
+});
 
-    // if(senderId !== currentChatUserId){
-    //     //notification here
-    //     return;
-    // }
+socket.on("message_read", (data) => {
+  const { messageId, chatId } = data;
 
-    // appendMessage({
-    //     senderId,
-    //     content
+  updateMessageStatus(chatId, messageId, "read");
+});
 
-    // })
-})
-
-
-export { renderChatsList,getAvatarColor,renderMessages,sendMessage,updateCurrentUserInfo,handleResize,isLoggedIn,currentUser,isMobile,adjustTextareaHeight,messages};
+export {
+  renderChatsList,
+  getAvatarColor,
+  renderMessages,
+  sendMessage,
+  updateCurrentUserInfo,
+  handleResize,
+  isLoggedIn,
+  currentUser,
+  isMobile,
+  adjustTextareaHeight,
+  messages,
+};

@@ -5,6 +5,14 @@ if (!token) {
 }
 import {renderChatsList,renderMessages,getAvatarColor,sendMessage,updateCurrentUserInfo,isLoggedIn,handleResize,currentUser,isMobile,adjustTextareaHeight,messages} from "/src/js/chat/chat.js"
 import {activeChatId,users,setActiveChatId} from "/src/js/auth/chatState.js"
+
+
+const currentUSER = JSON.parse(localStorage.getItem("userCredentials")) || {
+  firstName: "John",
+  lastName: "Doe",
+  email: "john.doe@example.com"
+};
+
 // DOM Elements
 const loadingScreen = document.getElementById("loading-screen");
 const loginPage = document.getElementById("login-page");
@@ -49,7 +57,10 @@ const loginBtn = document.getElementById("login-btn");
 const audioCallBtn = document.getElementById("audio-call-btn");
 const videoCallBtn = document.getElementById("video-call-btn");
 
-
+// Current state
+let typingTimeout = null;
+let darkMode = false;
+let typingInterval = null;
 
 // Render online users panel
 function renderOnlineUsers() {
@@ -149,41 +160,41 @@ function simulateRealTimeFeatures() {
   }, 5000);
 
   // Randomly update user statuses
-  setInterval(() => {
-    const randomUserIndex = Math.floor(Math.random() * users.length);
-    if (users[randomUserIndex].status === "online") {
-      users[randomUserIndex].status = "offline";
-      users[randomUserIndex].lastSeen = "Just now";
-    } else if (users[randomUserIndex].status === "offline" && Math.random() > 0.3) {
-      users[randomUserIndex].status = "online";
-    }
+  // setInterval(() => {
+  //   const randomUserIndex = Math.floor(Math.random() * users.length);
+  //   if (users[randomUserIndex].status === "online") {
+  //     users[randomUserIndex].status = "offline";
+  //     users[randomUserIndex].lastSeen = "Just now";
+  //   } else if (users[randomUserIndex].status === "offline" && Math.random() > 0.3) {
+  //     users[randomUserIndex].status = "online";
+  //   }
 
-    renderOnlineUsers();
-    renderChatsList(searchInput.value);
+  //   renderOnlineUsers();
+  //   renderChatsList(searchInput.value);
 
-    // Update active chat if needed
-    if (activeChatId === users[randomUserIndex].id) {
-      renderMessages(activeChatId);
-    }
-  }, 15000);
+  //   // Update active chat if needed
+  //   if (activeChatId === users[randomUserIndex].id) {
+  //     renderMessages(activeChatId);
+  //   }
+  // }, 15000);
 
   // Simulate typing indicators
-  setInterval(() => {
-    if (activeChatId && Math.random() > 0.7) {
-      const activeChat = users.find(u => u.id === activeChatId);
-      if (activeChat) {
-        activeChat.status = "typing";
-        renderChatsList(searchInput.value);
-        renderMessages(activeChatId);
+  // setInterval(() => {
+  //   if (activeChatId && Math.random() > 0.7) {
+  //     const activeChat = users.find(u => u.id === activeChatId);
+  //     if (activeChat) {
+  //       activeChat.status = "typing";
+  //       renderChatsList(searchInput.value);
+  //       renderMessages(activeChatId);
 
-        setTimeout(() => {
-          activeChat.status = "online";
-          renderChatsList(searchInput.value);
-          renderMessages(activeChatId);
-        }, 3000);
-      }
-    }
-  }, 8000);
+  //       setTimeout(() => {
+  //         activeChat.status = "online";
+  //         renderChatsList(searchInput.value);
+  //         renderMessages(activeChatId);
+  //       }, 3000);
+  //     }
+  //   }
+  // }, 8000);
 }
 
 // Set up event listeners
@@ -475,8 +486,8 @@ function attachFile(type) {
 
   const newMessage = {
     id: Date.now(),
-    sender: "You",
-    senderId: "0",
+    sender: currentUSER.username,
+    senderId: currentUSER.username,
     content: `[FILE] ${randomFile}`,
     time: getCurrentTime(),
     status: "sent",
@@ -512,8 +523,8 @@ function attachLocation() {
 
   const newMessage = {
     id: Date.now(),
-    sender: "You",
-    senderId: "0",
+    sender: currentUSER.username,
+    senderId: currentUSER.username,
     content: `📍 Shared location: ${randomLocation}`,
     time: getCurrentTime(),
     status: "sent",
@@ -750,4 +761,4 @@ document.addEventListener("DOMContentLoaded", init);
 
 
 
-export {switchChat,updateSendButton};
+export {switchChat,updateSendButton,showNotification};
