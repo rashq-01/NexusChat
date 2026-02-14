@@ -1,44 +1,73 @@
+import socket from "/src/js/chat/socket.js";
+import {
+  activeChatId,
+} from "/src/js/auth/chatState.js";
+import {updateUserStatus,messages,currentUSER} from "/src/js/chat/chat.js"
 
+const messageInput = document.getElementById("message-input");
 
 let isTyping = false;
 let typingTimeout;
 
-const TYPING_DELAY = 1000;
+const TYPING_DELAY = 600;
 
-const messagesInput = document.getElementById("messageInput");
-const typingIndicator = document.getElementById("typingIndicator");
+messageInput.addEventListener("input", () => {
+  if (!isTyping) {
+    socket.emit("typing_start", {
+      username: currentUSER.username,
+      receiverUsername: activeChatId,
+    });
 
-messagesInput.addEventListener("input",()=>{
+    isTyping = true;
+  }
 
-    if(!isTyping){
-        socket.emit("typing_start",{
-            receiverId : currentChatUserId
-        });
-        
-        isTyping = true;
-    }
+  clearTimeout(typingTimeout);
 
+  typingTimeout = setTimeout(() => {
+    socket.emit("typing_stop", {
+      username: currentUSER.username,
+      receiverUsername: activeChatId,
+    });
+    isTyping = false;
+  }, TYPING_DELAY);
+});
+socket.on("typing_start", (data) => {
+  const { receiverUsername, username } = data;
+  updateUserStatus(username, "typing");
 
-    clearTimeout(typingTimeout);
+  // <span style="color: var(--typing);"> is typing...</span>
 
-    typingTimeout = setTimeout(()=>{
-        socket.emit("typing_stop", {
-            receiverId : currentChatUserId
-        });
-        isTyping = false;
+  const chatItem = document.querySelector(`.chat-item[data-id="${username}"]`);
+  if(!chatItem)return;
 
-    }, TYPING_DELAY);
+  const chatLastMessage = chatItem.querySelector(".chat-last-message");
+  if (!chatLastMessage) return;
+  let typingEl = chatLastMessage.querySelector(".userTyping");
+  if (!typingEl) {
+    typingEl = document.createElement("span");
+    typingEl.classList.add("userTyping");
+    typingEl.style.color = "#00b120";
+    chatLastMessage.appendChild(typingEl);
+  }
+  typingEl.innerHTML = " is typing...";
 });
 
+socket.on("typing_stop", (data) => {
+  const { receiverUsername, username } = data;
+  updateUserStatus(username, "online");
 
+  const chatItem = document.querySelector(`.chat-item[data-id="${username}"]`);
 
-socket.on("typing",({senderId,typing}) =>{
-    if(senderId==currentChatUserId)return;
+  if(!chatItem)return;
 
-    if(typing){
-        typingIndicator.innerHTML = "User is typing";
-        typingIndicator.style.display = "block";
-    }else{
-        typingIndicator.style.display = "none";
-    }
-})
+  const chatLastMessage = chatItem.querySelector(".chat-last-message");
+  if (!chatLastMessage) return;
+  let typingEl = chatLastMessage.querySelector(".userTyping");
+  if (!typingEl) {
+    typingEl = document.createElement("span");
+    typingEl.classList.add("userTyping");
+    typingEl.style.color = "#00b120";
+    chatLastMessage.appendChild(typingEl);
+  }
+  typingEl.innerHTML = "";
+});

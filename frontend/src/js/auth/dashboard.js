@@ -3,7 +3,7 @@ if (!token) {
   alert("Unauthorized. Please login again.");
   window.location.href = "/";
 }
-import {renderChatsList,renderMessages,getAvatarColor,sendMessage,updateCurrentUserInfo,isLoggedIn,handleResize,currentUser,isMobile,adjustTextareaHeight,messages,fetchMessages} from "/src/js/chat/chat.js"
+import {renderChatsList,renderMessages,getAvatarColor,sendMessage,updateCurrentUserInfo,isLoggedIn,handleResize,currentUser,isMobile,adjustTextareaHeight,messages,fetchMessages,initChats} from "/src/js/chat/chat.js"
 import {activeChatId,users,setActiveChatId} from "/src/js/auth/chatState.js"
 
 
@@ -731,11 +731,12 @@ async function init() {
     `;
     return;
   }
-
-    loadingScreen.classList.add("hidden");
-    chatInterface.style.display = "flex";
-    loginPage.style.display = "none";
-
+  
+  loadingScreen.classList.add("hidden");
+  chatInterface.style.display = "flex";
+  loginPage.style.display = "none";
+  
+    await initChats();
     renderChatsList();
     if (activeChatId) {
       await fetchMessages(activeChatId);

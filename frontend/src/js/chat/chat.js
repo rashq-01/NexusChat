@@ -66,6 +66,12 @@ async function fetchMessages(chatId) {
   }));
 }
 
+async function initChats() {
+  await Promise.all(users.map(u => fetchMessages(u.id)));
+  renderChatsList();
+}
+
+
 // Current state
 let isMobile = window.innerWidth <= 768;
 let isLoggedIn = true;
@@ -260,6 +266,7 @@ function renderChatsList(filter = "") {
     const chatMessages = messages[user.id] || [];
     const lastMessage =
       chatMessages.length > 0 ? chatMessages[chatMessages.length - 1] : null;
+    console.log("last message ",lastMessage);
     const isActive = user.id === activeChatId;
     const unreadCount =
       Math.random() > 0.7 ? Math.floor(Math.random() * 5) + 1 : 0;
@@ -601,14 +608,12 @@ messageInput.addEventListener("keydown", (e) => {
     sendBtn.click();
   }
 });
-console.log(users);
 function formatTime(timestamp) {
   const date = new Date(timestamp);
   return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 }
 socket.on("receive_message", (message) => {
   const { senderId, content, chatId, timestamp, _id } = message;
-  console.log(message);
   const newMessage = {
     id: _id || Date.now(),
     sender: users.find((u) => u.id === senderId)?.name || "Unknown",
@@ -630,125 +635,10 @@ socket.on("receive_message", (message) => {
   renderMessages(activeChatId);
 });
 
-let isTyping = false;
-let typingTimeout;
-
-const TYPING_DELAY = 600;
-
-messageInput.addEventListener("input", () => {
-  if (!isTyping) {
-    socket.emit("typing_start", {
-      username: currentUSER.username,
-      receiverUsername: activeChatId,
-    });
-
-    isTyping = true;
-  }
-
-  clearTimeout(typingTimeout);
-
-  typingTimeout = setTimeout(() => {
-    socket.emit("typing_stop", {
-      username: currentUSER.username,
-      receiverUsername: activeChatId,
-    });
-    isTyping = false;
-  }, TYPING_DELAY);
-});
-console.log(messages);
-socket.on("typing_start", (data) => {
-  const { receiverUsername, username } = data;
-  console.log("typing started by : ", username);
-  updateUserStatus(username, "typing");
-
-  // <span style="color: var(--typing);"> is typing...</span>
-
-  const chatItem = document.querySelector(`.chat-item[data-id="${username}"]`);
-
-  const chatLastMessage = chatItem.querySelector(".chat-last-message");
-  if (!chatLastMessage) return;
-  let typingEl = chatLastMessage.querySelector(".userTyping");
-  if (!typingEl) {
-    typingEl = document.createElement("span");
-    typingEl.classList.add("userTyping");
-    typingEl.style.color = "#00b120";
-    chatLastMessage.appendChild(typingEl);
-  }
-  typingEl.innerHTML = " is typing...";
-  console.log(typingEl);
-});
-
-socket.on("typing_stop", (data) => {
-  const { receiverUsername, username } = data;
-  console.log("Typing stoped by : ", username);
-  updateUserStatus(username, "online");
-
-  const chatItem = document.querySelector(`.chat-item[data-id="${username}"]`);
-
-  const chatLastMessage = chatItem.querySelector(".chat-last-message");
-  if (!chatLastMessage) return;
-  let typingEl = chatLastMessage.querySelector(".userTyping");
-  if (!typingEl) {
-    typingEl = document.createElement("span");
-    typingEl.classList.add("userTyping");
-    typingEl.style.color = "#00b120";
-    chatLastMessage.appendChild(typingEl);
-  }
-  typingEl.innerHTML = "";
-});
-
 socket.on("message_read", (data) => {
   const { messageId, chatId } = data;
 
   updateMessageStatus(chatId, messageId, "read");
-});
-
-socket.on("userPresence", ({ username, data }) => {
-  const chatItem = document.querySelector(`.chat-item[data-id="${username}"]`);
-  console.log("Online User : ", username);
-
-  if (!chatItem) return;
-
-  let statusEl = chatItem.querySelector(".chat-status");
-  const avatar = chatItem.querySelector(".chat-avatar");
-
-  if (!statusEl) {
-    statusEl = document.createElement("div");
-    statusEl.className = "chat-status";
-    avatar.appendChild(statusEl);
-  }
-  statusEl.classList.remove("online", "offline");
-  if (data === "online" || data == "typing") {
-    statusEl.classList.add(data);
-  } else {
-    if (statusEl) statusEl.remove();
-  }
-});
-
-socket.on("onlineUsersSnapshot", (data) => {
-  data.users.forEach((usr) => {
-    const userObj = users.find((u) => u.id == usr);
-    if (userObj) {
-      userObj.status = "online";
-      console.log(userObj);
-    }
-
-    const chatItem = document.querySelector(`.chat-item[data-id="${usr}"]`);
-    console.log("Online User : ", usr);
-
-    if (!chatItem) return;
-
-    let statusEl = chatItem.querySelector(".chat-status");
-    const avatar = chatItem.querySelector(".chat-avatar");
-
-    if (!statusEl) {
-      statusEl = document.createElement("div");
-      statusEl.className = "chat-status";
-      avatar.appendChild(statusEl);
-    }
-    statusEl.classList.remove("online", "offline");
-    statusEl.classList.add("online");
-  });
 });
 
 export {
@@ -764,4 +654,7 @@ export {
   adjustTextareaHeight,
   messages,
   fetchMessages,
+  currentUSER,
+  updateUserStatus,
+  initChats,
 };
