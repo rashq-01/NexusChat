@@ -3,7 +3,7 @@ if (!token) {
   alert("Unauthorized. Please login again.");
   window.location.href = "/";
 }
-import {renderChatsList,renderMessages,getAvatarColor,sendMessage,updateCurrentUserInfo,isLoggedIn,handleResize,currentUser,isMobile,adjustTextareaHeight,messages} from "/src/js/chat/chat.js"
+import {renderChatsList,renderMessages,getAvatarColor,sendMessage,updateCurrentUserInfo,isLoggedIn,handleResize,currentUser,isMobile,adjustTextareaHeight,messages,fetchMessages} from "/src/js/chat/chat.js"
 import {activeChatId,users,setActiveChatId} from "/src/js/auth/chatState.js"
 
 
@@ -112,8 +112,9 @@ function renderOnlineUsers() {
 }
 
 // Switch to a different chat
-function switchChat(chatId) {
+async function switchChat(chatId) {
   setActiveChatId(chatId);
+  await fetchMessages(chatId);
   renderChatsList();
   renderMessages(chatId);
   renderOnlineUsers();
@@ -717,7 +718,7 @@ function toggleLoginState() {
 
 
 // Initialize the application
-function init() {
+async function init() {
   if (users.length === 0) {
     loadingScreen.innerHTML = `
       <div class="empty-chat">
@@ -731,13 +732,13 @@ function init() {
     return;
   }
 
-  setTimeout(() => {
     loadingScreen.classList.add("hidden");
     chatInterface.style.display = "flex";
     loginPage.style.display = "none";
 
     renderChatsList();
     if (activeChatId) {
+      await fetchMessages(activeChatId);
       renderMessages(activeChatId);
     }
     renderOnlineUsers();
@@ -752,7 +753,6 @@ function init() {
     if (savedTheme === "dark") {
       toggleDarkMode();
     }
-  }, 1);
 }
 
 
@@ -761,4 +761,4 @@ document.addEventListener("DOMContentLoaded", init);
 
 
 
-export {switchChat,updateSendButton,showNotification};
+export {switchChat,updateSendButton,showNotification,renderOnlineUsers};

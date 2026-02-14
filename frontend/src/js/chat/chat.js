@@ -3,6 +3,7 @@ import {
   switchChat,
   updateSendButton,
   showNotification,
+  renderOnlineUsers,
 } from "/src/js/auth/dashboard.js";
 import {
   activeChatId,
@@ -32,17 +33,40 @@ const currentUserData = {
   lastSync: "2 min ago",
   verified: true,
 };
-console.log(currentUserData);
 let currentUser = currentUserData;
 
 // Create dummy messages for each friend
 const messages = {};
-users.forEach((user) => {
-  messages[user.id] = generateDummyMessages(user);
-});
+// users.forEach((user) => {
+//   messages[user.id] = generateDummyMessages(user);
+// });
+
+async function fetchMessages(chatId) {
+  const token = localStorage.getItem("token");
+  const res = await fetch(
+    `http://localhost:5000/api/messages?chatId=${chatId}&username=${currentUSER.username}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+  const data = await res.json();
+  if (!data.success) {
+    return;
+  }
+
+  messages[chatId] = data.messages.map((msg) => ({
+    id: msg._id,
+    sender: msg.senderId,
+    senderId: msg.senderId,
+    content: msg.content,
+    time: formatTime(msg.createdAt),
+    status: msg.status,
+  }));
+}
 
 // Current state
-let typingTimeout = null;
 let isMobile = window.innerWidth <= 768;
 let isLoggedIn = true;
 let darkMode = false;
@@ -109,7 +133,6 @@ function getNameColor(text) {
 
   return colors[Math.abs(hash) % colors.length];
 }
-
 
 function getStatusIcon(status) {
   switch (status) {
@@ -203,45 +226,6 @@ function updateCurrentUserInfo() {
   });
 }
 
-// Initialize the application
-function init() {
-  if (users.length === 0) {
-    loadingScreen.innerHTML = `
-      <div class="empty-chat">
-        <div class="empty-chat-icon">
-          <i class="far fa-comments"></i>
-        </div>
-        <h3>No Friends Found</h3>
-        <p>Add some friends to start chatting!</p>
-      </div>
-    `;
-    return;
-  }
-
-  setTimeout(() => {
-    loadingScreen.classList.add("hidden");
-    chatInterface.style.display = "flex";
-    loginPage.style.display = "none";
-
-    renderChatsList();
-    if (activeChatId) {
-      renderMessages(activeChatId);
-    }
-    renderOnlineUsers();
-    setupEventListeners();
-    updateCurrentUserInfo();
-
-    simulateRealTimeFeatures();
-
-    window.addEventListener("resize", handleResize);
-
-    const savedTheme = localStorage.getItem("nexuschat-theme");
-    if (savedTheme === "dark") {
-      toggleDarkMode();
-    }
-  }, 1);
-}
-
 // Handle window resize
 function handleResize() {
   isMobile = window.innerWidth <= 768;
@@ -327,20 +311,28 @@ function renderChatsList(filter = "") {
                 : "No messages yet"
             }
             ${user.id === activeChatId && user.status === "typing" ? '<span style="color: var(--typing);"> is typing...</span>' : ""}
-          </div>
+          </div><!--
           <div class="chat-meta">
             ${unreadCount > 0 ? `<div class="unread-count">${unreadCount}</div>` : ""}
             ${
-              !unreadCount && lastMessage && lastMessage.senderId === currentUSER.username
+              !unreadCount &&
+              lastMessage &&
+              lastMessage.senderId === currentUSER.username
                 ? `<i class="fas ${getStatusIcon(lastMessage.status)} message-status ${lastMessage.status}"></i>`
                 : ""
             }
-          </div>
+          </div>-->
         </div>
       </div>
     `;
 
-    chatItem.addEventListener("click", () => switchChat(user.id));
+    chatItem.addEventListener("click", () => {
+      socket.emit("typing_stop", {
+        username: currentUSER.username,
+        receiverUsername: activeChatId,
+      });
+      switchChat(user.id);
+    });
     chatsList.appendChild(chatItem);
   });
 }
@@ -435,7 +427,6 @@ function renderMessages(chatId) {
       ? currentUser
       : users.find((u) => u.id === message.senderId);
     const avatarText = senderAvatar?.avatar || "??";
-    console.log("Sender Avater : ",senderAvatar)
     messageElement.innerHTML = `
       <div class="message-avatar">
         <div class="avatar-text" style="background: linear-gradient(135deg, ${getAvatarColor(avatarText)}, ${getAvatarColor(avatarText)}80)">${senderAvatar.avatar}</div>
@@ -548,8 +539,6 @@ function sendMessage() {
   const activeChat = users.find((u) => u.id === activeChatId);
   if (!activeChat) return;
 
-
-
   const newMessage = {
     id: Date.now(),
     sender: currentUser.name,
@@ -570,7 +559,10 @@ function sendMessage() {
     type: "text",
   });
 
-  socket.emit("typing_stop",{receiverUsername: activeChatId});
+  socket.emit("typing_stop", {
+    username: currentUSER.username,
+    receiverUsername: activeChatId,
+  });
 }
 
 // Simulate a reply from the other person
@@ -603,14 +595,13 @@ function simulateReply(activeChat) {
   renderMessages(activeChatId);
   renderChatsList(searchInput.value);
 }
-console.log(activeChatId);
 
 messageInput.addEventListener("keydown", (e) => {
   if (e.key === "Enter") {
     sendBtn.click();
   }
 });
-
+console.log(users);
 function formatTime(timestamp) {
   const date = new Date(timestamp);
   return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
@@ -618,7 +609,6 @@ function formatTime(timestamp) {
 socket.on("receive_message", (message) => {
   const { senderId, content, chatId, timestamp, _id } = message;
   console.log(message);
-
   const newMessage = {
     id: _id || Date.now(),
     sender: users.find((u) => u.id === senderId)?.name || "Unknown",
@@ -627,7 +617,6 @@ socket.on("receive_message", (message) => {
     time: formatTime(timestamp),
     status: "delivered",
   };
-
   addNewMessage(senderId, newMessage);
 
   if (senderId !== activeChatId) {
@@ -637,22 +626,129 @@ socket.on("receive_message", (message) => {
       `New message from ${newMessage.sender}`,
     );
   }
+
+  renderMessages(activeChatId);
 });
 
+let isTyping = false;
+let typingTimeout;
+
+const TYPING_DELAY = 600;
+
+messageInput.addEventListener("input", () => {
+  if (!isTyping) {
+    socket.emit("typing_start", {
+      username: currentUSER.username,
+      receiverUsername: activeChatId,
+    });
+
+    isTyping = true;
+  }
+
+  clearTimeout(typingTimeout);
+
+  typingTimeout = setTimeout(() => {
+    socket.emit("typing_stop", {
+      username: currentUSER.username,
+      receiverUsername: activeChatId,
+    });
+    isTyping = false;
+  }, TYPING_DELAY);
+});
+console.log(messages);
 socket.on("typing_start", (data) => {
-  const { username } = data;
+  const { receiverUsername, username } = data;
+  console.log("typing started by : ", username);
   updateUserStatus(username, "typing");
+
+  // <span style="color: var(--typing);"> is typing...</span>
+
+  const chatItem = document.querySelector(`.chat-item[data-id="${username}"]`);
+
+  const chatLastMessage = chatItem.querySelector(".chat-last-message");
+  if (!chatLastMessage) return;
+  let typingEl = chatLastMessage.querySelector(".userTyping");
+  if (!typingEl) {
+    typingEl = document.createElement("span");
+    typingEl.classList.add("userTyping");
+    typingEl.style.color = "#00b120";
+    chatLastMessage.appendChild(typingEl);
+  }
+  typingEl.innerHTML = " is typing...";
+  console.log(typingEl);
 });
 
 socket.on("typing_stop", (data) => {
-  const { username } = data;
+  const { receiverUsername, username } = data;
+  console.log("Typing stoped by : ", username);
   updateUserStatus(username, "online");
+
+  const chatItem = document.querySelector(`.chat-item[data-id="${username}"]`);
+
+  const chatLastMessage = chatItem.querySelector(".chat-last-message");
+  if (!chatLastMessage) return;
+  let typingEl = chatLastMessage.querySelector(".userTyping");
+  if (!typingEl) {
+    typingEl = document.createElement("span");
+    typingEl.classList.add("userTyping");
+    typingEl.style.color = "#00b120";
+    chatLastMessage.appendChild(typingEl);
+  }
+  typingEl.innerHTML = "";
 });
 
 socket.on("message_read", (data) => {
   const { messageId, chatId } = data;
 
   updateMessageStatus(chatId, messageId, "read");
+});
+
+socket.on("userPresence", ({ username, data }) => {
+  const chatItem = document.querySelector(`.chat-item[data-id="${username}"]`);
+  console.log("Online User : ", username);
+
+  if (!chatItem) return;
+
+  let statusEl = chatItem.querySelector(".chat-status");
+  const avatar = chatItem.querySelector(".chat-avatar");
+
+  if (!statusEl) {
+    statusEl = document.createElement("div");
+    statusEl.className = "chat-status";
+    avatar.appendChild(statusEl);
+  }
+  statusEl.classList.remove("online", "offline");
+  if (data === "online" || data == "typing") {
+    statusEl.classList.add(data);
+  } else {
+    if (statusEl) statusEl.remove();
+  }
+});
+
+socket.on("onlineUsersSnapshot", (data) => {
+  data.users.forEach((usr) => {
+    const userObj = users.find((u) => u.id == usr);
+    if (userObj) {
+      userObj.status = "online";
+      console.log(userObj);
+    }
+
+    const chatItem = document.querySelector(`.chat-item[data-id="${usr}"]`);
+    console.log("Online User : ", usr);
+
+    if (!chatItem) return;
+
+    let statusEl = chatItem.querySelector(".chat-status");
+    const avatar = chatItem.querySelector(".chat-avatar");
+
+    if (!statusEl) {
+      statusEl = document.createElement("div");
+      statusEl.className = "chat-status";
+      avatar.appendChild(statusEl);
+    }
+    statusEl.classList.remove("online", "offline");
+    statusEl.classList.add("online");
+  });
 });
 
 export {
@@ -667,4 +763,5 @@ export {
   isMobile,
   adjustTextareaHeight,
   messages,
+  fetchMessages,
 };

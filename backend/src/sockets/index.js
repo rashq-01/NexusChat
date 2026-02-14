@@ -20,7 +20,7 @@ function initializeSocket(httpServer) {
 
     registerMessageHandler(socket, io); // For messages
     presenceSocket(socket, io); //for (offline,online)
-    // registerTypingHandler(socket, io); // For typing indicator
+    registerTypingHandler(socket, io); // For typing indicator
 
     // socket.on("disconnect",()=>{
     //     console.log("User disconnected : ",socket.user._id, "Socket : ",socket.id);

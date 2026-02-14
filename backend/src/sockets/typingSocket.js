@@ -1,20 +1,20 @@
 
-const userSocket = require("./user-socketMap");
+const {userToSocket,socketToUser} = require("../sockets/user-socketMap")
 
 function registerTypingHandler(socket,io){
 
     // typing start
-    socket.on("typing_start",({receiverId})=>{
+    socket.on("typing_start",({receiverUsername,username})=>{
+
+        const receiverSockets = userToSocket.get(receiverUsername);
         
-        const senderId = socket.user._id.toString();
-
-        const receiverSockets = userSocket.get(receiverId);
-
         if(!receiverSockets)return;
-
+        
         receiverSockets.forEach((socketId)=>{
-            io.to(socketId).emit("typing",{
-                senderId,
+            console.log("typing started by : ",username);
+            io.to(socketId).emit("typing_start",{
+                receiverUsername,
+                username,
                 typing : true,
             });
         });
@@ -22,17 +22,18 @@ function registerTypingHandler(socket,io){
 
 
     //typing stop
-    socket.on("typing_stop",({receiverId})=>{
+    socket.on("typing_stop",({receiverUsername,username})=>{
 
-        const senderId = socket.user._id.toString();
+        console.log("typing stopped by : ",username,receiverUsername);
 
-        const receiverSockets = userSocket.get(receiverId);
+        const receiverSockets = userToSocket.get(receiverUsername);
 
         if(!receiverSockets)return;
 
         receiverSockets.forEach((socketId)=>{
-            io.to(socketId).emit("typing",{
-                senderId,
+            io.to(socketId).emit("typing_stop",{
+                receiverUsername,
+                username,
                 typing : false
             });
         });

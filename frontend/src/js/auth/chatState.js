@@ -1,5 +1,5 @@
 const friends = JSON.parse(localStorage.getItem("friends")) || [];
-
+console.log(friends);
 // Helper functions
 function getRandomStatus() {
   const statuses = ["online", "offline", "idle", "typing"];
@@ -16,7 +16,7 @@ const users = friends.map((friend) => ({
   id: friend.username,
   name: `${friend.firstName} ${friend.lastName}`,
   avatar: `${friend.firstName[0]}${friend.lastName[0]}`,
-  status: getRandomStatus(),
+  status: "offline",
   lastSeen: getRandomLastSeen(),
   chatId: `#CHAT-${friend._id.slice(-3)}`,
   verified: Math.random() > 0.5,

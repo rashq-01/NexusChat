@@ -7,7 +7,7 @@ function presenceSocket(socket, io) {
   if (!userToSocket.has(username)) {
     userToSocket.set(username, new Set());
 
-    socket.broadcast.emit("user_online", { username });
+    socket.broadcast.emit("userPresence", { username,data:"online" });
   }
 
   // Mapping
@@ -16,13 +16,17 @@ function presenceSocket(socket, io) {
   console.log(userToSocket);
   console.log(socketToUser);
 
+  socket.emit("onlineUsersSnapshot",{
+    users : Array.from(userToSocket.keys()),
+  })
+
   socket.on("disconnect", async () => {
     const socketSet = userToSocket.get(username);
 
     if (!socketSet) return;
 
-    socketToUser.delete(socket.id);
     socketSet.delete(socket.id);
+    socketToUser.delete(socket.id);
 
     if (socketSet.size === 0) {
       userToSocket.delete(username);
@@ -37,8 +41,9 @@ function presenceSocket(socket, io) {
       console.log(userToSocket);
       console.log(socketToUser);
 
-      socket.broadcast.emit("user_offline", {
+      socket.broadcast.emit("userPresence", {
         username,
+        data : "offline"
       });
     }
   });

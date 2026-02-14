@@ -22,7 +22,6 @@ function registerMessageHandler(socket, io) {
             isGroup : false,
         });
     }
-    console.log("Chat Created");
 
     let message = await Message.create({
         chatId : chat._id,
@@ -31,7 +30,6 @@ function registerMessageHandler(socket, io) {
         type,
         content,
     });
-    console.log("Message Created");
 
     const receiverSockets = userToSocket.get(receiverUsername);
 
@@ -49,9 +47,7 @@ function registerMessageHandler(socket, io) {
         });
 
         message.status = "delivered";
-        message.deliveredTo.push(receiverUsername);
         await message.save();
-        console.log("Message delivered");
     }
 
     socket.broadcast.emit("message_sent",{

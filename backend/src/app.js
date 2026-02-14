@@ -2,6 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const authRoute = require("./routes/authRoute");
+const {chatRouter} = require("./routes/chatRoute");
 const AppError = require("./utils/AppError");
 const {errorHandler} = require("./middlewares/errorMiddleware");
 const path = require("path");
@@ -18,6 +19,7 @@ app.use(express.static(path.join(__dirname,"../../frontend")));
 
 //Routes
 app.use("/api/auth",authRoute);
+app.use("/api/messages",chatRouter);
 
 
 //Unknown Routes (404)
