@@ -69,7 +69,7 @@ function renderOnlineUsers() {
   const onlineUsers = users.filter(
     (user) =>
       (user.status === "online" || user.status === "typing") &&
-      user.id !== activeChatId
+      user.id !== currentUSER.username
   );
 
   if (onlineUsers.length === 0) {
@@ -118,7 +118,6 @@ async function switchChat(chatId) {
   renderChatsList();
   renderMessages(chatId);
   renderOnlineUsers();
-  console.log(activeChatId);
   if (isMobile) {
     sidebar.classList.remove("active");
     overlay.classList.remove("active");

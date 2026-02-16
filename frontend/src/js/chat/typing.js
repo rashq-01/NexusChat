@@ -4,6 +4,10 @@ import {
 } from "/src/js/auth/chatState.js";
 import {updateUserStatus,messages,currentUSER} from "/src/js/chat/chat.js"
 
+import {
+  users,
+} from "/src/js/auth/chatState.js";
+
 const messageInput = document.getElementById("message-input");
 
 let isTyping = false;
@@ -39,6 +43,9 @@ socket.on("typing_start", (data) => {
 
   const chatItem = document.querySelector(`.chat-item[data-id="${username}"]`);
   if(!chatItem)return;
+  const user = users.find(u=>u.id==username);
+  if(user) user.status = "typing";
+
 
   const chatLastMessage = chatItem.querySelector(".chat-last-message");
   if (!chatLastMessage) return;
@@ -59,6 +66,8 @@ socket.on("typing_stop", (data) => {
   const chatItem = document.querySelector(`.chat-item[data-id="${username}"]`);
 
   if(!chatItem)return;
+  const user = users.find(u=>u.id==username);
+  if(user) user.status = "typing";
 
   const chatLastMessage = chatItem.querySelector(".chat-last-message");
   if (!chatLastMessage) return;

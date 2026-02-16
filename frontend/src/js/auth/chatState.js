@@ -1,5 +1,4 @@
 const friends = JSON.parse(localStorage.getItem("friends")) || [];
-console.log(friends);
 // Helper functions
 function getRandomStatus() {
   const statuses = ["online", "offline", "idle", "typing"];

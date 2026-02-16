@@ -61,16 +61,15 @@ async function fetchMessages(chatId) {
     sender: msg.senderId,
     senderId: msg.senderId,
     content: msg.content,
-    time: formatTime(msg.createdAt),
+    time: msg.createdAt,
     status: msg.status,
   }));
 }
 
 async function initChats() {
-  await Promise.all(users.map(u => fetchMessages(u.id)));
+  await Promise.all(users.map((u) => fetchMessages(u.id)));
   renderChatsList();
 }
-
 
 // Current state
 let isMobile = window.innerWidth <= 768;
@@ -266,7 +265,6 @@ function renderChatsList(filter = "") {
     const chatMessages = messages[user.id] || [];
     const lastMessage =
       chatMessages.length > 0 ? chatMessages[chatMessages.length - 1] : null;
-    console.log("last message ",lastMessage);
     const isActive = user.id === activeChatId;
     const unreadCount =
       Math.random() > 0.7 ? Math.floor(Math.random() * 5) + 1 : 0;
@@ -304,7 +302,7 @@ function renderChatsList(filter = "") {
             ${user.name}
             ${verifiedBadge}
           </div>
-          <div class="chat-time">${lastMessage ? lastMessage.time : ""}</div>
+          <div class="chat-time">${lastMessage ? getDateLabel(lastMessage.time) : ""}</div>
         </div>
         <div class="chat-preview">
           <div class="chat-last-message">
@@ -396,14 +394,29 @@ function renderMessages(chatId) {
     messagesContainer.appendChild(emptyState);
     return;
   }
+function isSameDay(date1, date2) {
+  const d1 = new Date(date1);
+  const d2 = new Date(date2);
+
+  d1.setHours(0, 0, 0, 0);
+  d2.setHours(0, 0, 0, 0);
+
+  return d1.getTime() === d2.getTime();
+}
+
 
   // Add date separator
-  const dateElement = document.createElement("div");
-  dateElement.className = "message-date";
-  dateElement.innerHTML = `<span class="date-label">Today</span>`;
-  messagesContainer.appendChild(dateElement);
-
+  let curr = null
   chatMessages.forEach((message) => {
+    if(curr==null || !isSameDay(curr,message.time)){
+      const dateElement = document.createElement("div");
+      dateElement.className = "message-date";
+      dateElement.innerHTML = `<span class="date-label">${getDateLabel(message.time)}</span>`;
+      messagesContainer.appendChild(dateElement);
+      curr = message.time;
+
+    }
+
     const isSent = message.senderId === currentUSER.username;
     const messageElement = document.createElement("div");
     messageElement.className = `message ${isSent ? "sent" : "received"}`;
@@ -444,7 +457,7 @@ function renderMessages(chatId) {
           <div class="message-text">${hasFile ? "" : messageContent}</div>
           ${filePreview}
           <div class="message-time">
-            ${message.time}
+            ${formatTime(message.time)}
             ${isSent ? `<span class="message-status"><i class="${getStatusIcon(message.status)}"></i></span>` : ""}
           </div>
         </div>
@@ -612,6 +625,30 @@ function formatTime(timestamp) {
   const date = new Date(timestamp);
   return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 }
+function getDateLabel(date) {
+  const msgDate = new Date(date);
+  const today = new Date();
+  const yesterday = new Date();
+
+  // normalize time (very important)
+  today.setHours(0, 0, 0, 0);
+  yesterday.setHours(0, 0, 0, 0);
+  yesterday.setDate(today.getDate() - 1);
+
+  const msgDay = new Date(msgDate);
+  msgDay.setHours(0, 0, 0, 0);
+
+  if (msgDay.getTime() === today.getTime()) {
+    return "Today";
+  }
+
+  if (msgDay.getTime() === yesterday.getTime()) {
+    return "Yesterday";
+  }
+
+  // otherwise return formatted date
+  return msgDate.toLocaleDateString("en-GB"); // 20/02/2026
+}
 socket.on("receive_message", (message) => {
   const { senderId, content, chatId, timestamp, _id } = message;
   const newMessage = {
@@ -619,7 +656,7 @@ socket.on("receive_message", (message) => {
     sender: users.find((u) => u.id === senderId)?.name || "Unknown",
     senderId: senderId,
     content: content,
-    time: formatTime(timestamp),
+    time: timestamp,
     status: "delivered",
   };
   addNewMessage(senderId, newMessage);
