@@ -67,7 +67,7 @@ socket.on("typing_stop", (data) => {
 
   if(!chatItem)return;
   const user = users.find(u=>u.id==username);
-  if(user) user.status = "typing";
+  if(user) user.status = "online";
 
   const chatLastMessage = chatItem.querySelector(".chat-last-message");
   if (!chatLastMessage) return;
@@ -78,5 +78,5 @@ socket.on("typing_stop", (data) => {
     typingEl.style.color = "#00b120";
     chatLastMessage.appendChild(typingEl);
   }
-  typingEl.innerHTML = "";
+  if(typingEl)typingEl.remove();
 });

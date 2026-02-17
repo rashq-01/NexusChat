@@ -13,7 +13,6 @@ socket.on("userPresence", ({ username, data }) => {
   const chatItem = document.querySelector(`.chat-item[data-id="${username}"]`);
   
   if (!chatItem) return;
-  console.log(`${username} got ${data}`)
   const user = users.find(u=>u.id==username);
   if(user)user.status = data;
   renderOnlineUsers();

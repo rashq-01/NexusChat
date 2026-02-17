@@ -9,9 +9,6 @@ const socket = io(HOST, {
 });
 
 socket.on("connect", () => {
-  console.log(
-    `User ${currentUSER.username} connected  with socket ID ${socket.id}`,
-  );
 });
 
 export default socket;

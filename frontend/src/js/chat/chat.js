@@ -266,8 +266,10 @@ function renderChatsList(filter = "") {
     const lastMessage =
       chatMessages.length > 0 ? chatMessages[chatMessages.length - 1] : null;
     const isActive = user.id === activeChatId;
-    const unreadCount =
-      Math.random() > 0.7 ? Math.floor(Math.random() * 5) + 1 : 0;
+    let unreadCount = 0;
+    chatMessages.forEach((msg)=>{
+      if(msg.status !== "read" && msg.senderId!==currentUSER.username)unreadCount++;
+    })
 
     const chatItem = document.createElement("div");
     chatItem.className = `chat-item ${isActive ? "active" : ""}`;
@@ -316,7 +318,7 @@ function renderChatsList(filter = "") {
                 : "No messages yet"
             }
             ${user.id === activeChatId && user.status === "typing" ? '<span style="color: var(--typing);"> is typing...</span>' : ""}
-          </div><!--
+          </div>
           <div class="chat-meta">
             ${unreadCount > 0 ? `<div class="unread-count">${unreadCount}</div>` : ""}
             ${
@@ -326,7 +328,7 @@ function renderChatsList(filter = "") {
                 ? `<i class="fas ${getStatusIcon(lastMessage.status)} message-status ${lastMessage.status}"></i>`
                 : ""
             }
-          </div>-->
+          </div>
         </div>
       </div>
     `;
@@ -564,7 +566,7 @@ function sendMessage() {
     sender: currentUser.name,
     senderId: currentUSER.username,
     content: content,
-    time: getCurrentTime(),
+    time: new Date().toISOString(),
     status: "sent",
   };
   addNewMessage(activeChatId, newMessage);
@@ -671,12 +673,14 @@ socket.on("receive_message", (message) => {
 
   renderMessages(activeChatId);
 });
-
-socket.on("message_read", (data) => {
-  const { messageId, chatId } = data;
-
-  updateMessageStatus(chatId, messageId, "read");
+socket.on("message_read", async ({username,readStatus}) => {
+  await fetchMessages(username);
+  if(activeChatId===username){
+    // renderMessages(activeChatId);
+  }
 });
+
+
 
 export {
   renderChatsList,

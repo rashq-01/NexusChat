@@ -3,6 +3,7 @@ const authSocket = require("./authSocket");
 const {registerMessageHandler} = require("./messageSocket");
 const presenceSocket = require("./presenceSocket");
 const { registerTypingHandler } = require("./typingSocket");
+const {messageReadHandler} = require("./readSocket");
 
 function initializeSocket(httpServer) {
   const io = socketIO(httpServer, {
@@ -21,6 +22,7 @@ function initializeSocket(httpServer) {
     registerMessageHandler(socket, io); // For messages
     presenceSocket(socket, io); //for (offline,online)
     registerTypingHandler(socket, io); // For typing indicator
+    messageReadHandler(socket,io); // For Message reading
 
     // socket.on("disconnect",()=>{
     //     console.log("User disconnected : ",socket.user._id, "Socket : ",socket.id);

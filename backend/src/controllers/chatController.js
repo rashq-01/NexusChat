@@ -44,5 +44,16 @@ const getMessages = asyncHandler(async (req, res) => {
   });
 });
 
+async function markAsRead(username,receiverUsername){
+  const chats = await Chat.find({
+    participants: {$all: [username,receiverUsername]},
+  }).select("_id")
 
-module.exports = {getUserChats,getMessages};
+  const chatIds = chats.map(chat=>chat._id);
+
+  await Message.updateMany({ chatId : {$in : chatIds}},{status: "read"});
+  console.log("Message read by ",username);
+}
+
+
+module.exports = {getUserChats,getMessages,markAsRead};

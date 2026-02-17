@@ -1,3 +1,4 @@
+import socket from "/src/js/chat/socket.js";
 const token = localStorage.getItem("token");
 if (!token) {
   alert("Unauthorized. Please login again.");
@@ -115,6 +116,7 @@ function renderOnlineUsers() {
 async function switchChat(chatId) {
   setActiveChatId(chatId);
   await fetchMessages(chatId);
+  socket.emit("message_read",({username : currentUSER.username,receiverUsername:chatId}));
   renderChatsList();
   renderMessages(chatId);
   renderOnlineUsers();
