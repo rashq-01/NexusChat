@@ -4,7 +4,7 @@ if (!token) {
   alert("Unauthorized. Please login again.");
   window.location.href = "/";
 }
-import {renderChatsList,renderMessages,getAvatarColor,sendMessage,updateCurrentUserInfo,isLoggedIn,handleResize,currentUser,isMobile,adjustTextareaHeight,messages,fetchMessages,initChats} from "/src/js/chat/chat.js"
+import {renderChatsList,renderMessages,getAvatarColor,sendMessage,updateCurrentUserInfo,isLoggedIn,handleResize,currentUser,isMobile,adjustTextareaHeight,messages,fetchMessages,initChats,markMessagesAsRead} from "/src/js/chat/chat.js"
 import {activeChatId,users,setActiveChatId} from "/src/js/auth/chatState.js"
 
 
@@ -116,6 +116,7 @@ function renderOnlineUsers() {
 async function switchChat(chatId) {
   setActiveChatId(chatId);
   await fetchMessages(chatId);
+  markMessagesAsRead(chatId);
   socket.emit("message_read",({username : currentUSER.username,receiverUsername:chatId}));
   renderChatsList();
   renderMessages(chatId);

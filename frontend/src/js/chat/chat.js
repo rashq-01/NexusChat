@@ -267,9 +267,10 @@ function renderChatsList(filter = "") {
       chatMessages.length > 0 ? chatMessages[chatMessages.length - 1] : null;
     const isActive = user.id === activeChatId;
     let unreadCount = 0;
-    chatMessages.forEach((msg)=>{
-      if(msg.status !== "read" && msg.senderId!==currentUSER.username)unreadCount++;
-    })
+    chatMessages.forEach((msg) => {
+      if (msg.status !== "read" && msg.senderId !== currentUSER.username)
+        unreadCount++;
+    });
 
     const chatItem = document.createElement("div");
     chatItem.className = `chat-item ${isActive ? "active" : ""}`;
@@ -396,27 +397,25 @@ function renderMessages(chatId) {
     messagesContainer.appendChild(emptyState);
     return;
   }
-function isSameDay(date1, date2) {
-  const d1 = new Date(date1);
-  const d2 = new Date(date2);
+  function isSameDay(date1, date2) {
+    const d1 = new Date(date1);
+    const d2 = new Date(date2);
 
-  d1.setHours(0, 0, 0, 0);
-  d2.setHours(0, 0, 0, 0);
+    d1.setHours(0, 0, 0, 0);
+    d2.setHours(0, 0, 0, 0);
 
-  return d1.getTime() === d2.getTime();
-}
-
+    return d1.getTime() === d2.getTime();
+  }
 
   // Add date separator
-  let curr = null
+  let curr = null;
   chatMessages.forEach((message) => {
-    if(curr==null || !isSameDay(curr,message.time)){
+    if (curr == null || !isSameDay(curr, message.time)) {
       const dateElement = document.createElement("div");
       dateElement.className = "message-date";
       dateElement.innerHTML = `<span class="date-label">${getDateLabel(message.time)}</span>`;
       messagesContainer.appendChild(dateElement);
       curr = message.time;
-
     }
 
     const isSent = message.senderId === currentUSER.username;
@@ -491,35 +490,6 @@ function addNewMessage(chatId, messageData) {
     renderMessages(chatId);
   }
   renderChatsList(searchInput.value);
-}
-
-function updateMessageStatus(chatId, messageId, newStatus) {
-  const chatMessages = messages[chatId];
-
-  if (chatMessages) {
-    const message = chatMessages.find((msg) => msg.id === messageId);
-    if (message) {
-      message.status = newStatus;
-
-      if (chatId === activeChatId) {
-        renderMessages(chatId);
-      }
-    }
-  }
-}
-
-function markmessagesAsRead(chatId) {
-  const chatMessages = messages[chatId];
-  if (chatMessages) {
-    chatMessages.forEach((msg) => {
-      if (msg.senderId !== currentUSER.username && msg.status !== "read") {
-        msg.status = "read";
-      }
-    });
-    if (chatId === activeChatId) {
-      renderChatsList(chatId);
-    }
-  }
 }
 
 function updateUserStatus(userId, newStatus, lastSeen = null) {
@@ -659,11 +629,20 @@ socket.on("receive_message", (message) => {
     senderId: senderId,
     content: content,
     time: timestamp,
-    status: "delivered",
+    status: senderId === activeChatId ? "read" : "delivered",
   };
-  addNewMessage(senderId, newMessage);
 
-  if (senderId !== activeChatId) {
+  // socket.emit("message_delivered",{username})
+
+  addNewMessage(senderId, newMessage);
+  if (senderId === activeChatId) {
+    markMessagesAsRead(senderId);
+
+    socket.emit("message_read", {
+      username: currentUSER.username,
+      receiverUsername: senderId,
+    });
+  } else {
     showNotification(
       "New Message",
       "info",
@@ -673,14 +652,37 @@ socket.on("receive_message", (message) => {
 
   renderMessages(activeChatId);
 });
-socket.on("message_read", async ({username,readStatus}) => {
-  await fetchMessages(username);
-  if(activeChatId===username){
-    // renderMessages(activeChatId);
-  }
+console.log(messages);
+socket.on("message_read", async ({ username }) => {
+  await updateMessageStatus(username);
 });
 
+async function updateMessageStatus(chatId) {
+  const chatMessages = messages[chatId];
 
+  if (chatMessages) {
+    await fetchMessages(chatId);
+    if (chatId === activeChatId) {
+      renderMessages(chatId);
+    }
+  }
+  renderChatsList(searchInput.value);
+}
+
+function markMessagesAsRead(chatId) {
+  const chatMessages = messages[chatId];
+  if (chatMessages) {
+    chatMessages.forEach((msg) => {
+      if (msg.senderId !== currentUSER.username && msg.status !== "read") {
+        msg.status = "read";
+      }
+    });
+    if (chatId === activeChatId) {
+      renderMessages(chatId);
+    }
+  }
+  renderChatsList(searchInput.value);
+}
 
 export {
   renderChatsList,
@@ -698,4 +700,5 @@ export {
   currentUSER,
   updateUserStatus,
   initChats,
+  markMessagesAsRead,
 };

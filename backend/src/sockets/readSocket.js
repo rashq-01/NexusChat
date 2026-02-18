@@ -7,10 +7,10 @@ async function messageReadHandler(socket,io){
     // typing start
     socket.on("message_read",({username,receiverUsername})=>{
 
+        markAsRead(username,receiverUsername);
         const receiverSockets = userToSocket.get(receiverUsername);
         if(!receiverSockets)return;
         
-        markAsRead(username,receiverUsername);
         console.log("message Read by ",username);
         receiverSockets.forEach((socketId)=>{
             io.to(socketId).emit("message_read",{
