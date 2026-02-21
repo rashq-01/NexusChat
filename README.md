@@ -1,4 +1,4 @@
-# NexusChat# NexusChat 🚀
+# NexusChat 🚀
 
 <div align="center">
 
