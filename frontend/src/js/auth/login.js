@@ -29,93 +29,93 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 });
 
-// Background animation
-function createBackgroundAnimation() {
-  const bgAnimation = document.getElementById("bgAnimation");
-  const nodeCount = 25;
+// // Background animation
+// function createBackgroundAnimation() {
+//   const bgAnimation = document.getElementById("bgAnimation");
+//   const nodeCount = 25;
 
-  // Create nodes
-  for (let i = 0; i < nodeCount; i++) {
-    const node = document.createElement("div");
-    node.className = "node";
-    node.style.left = `${Math.random() * 100}%`;
-    node.style.top = `${Math.random() * 100}%`;
-    node.style.width = `${Math.random() * 6 + 3}px`;
-    node.style.height = node.style.width;
-    node.style.backgroundColor = `rgba(37, 99, 235, ${Math.random() * 0.2 + 0.1})`;
-    bgAnimation.appendChild(node);
+//   // Create nodes
+//   for (let i = 0; i < nodeCount; i++) {
+//     const node = document.createElement("div");
+//     node.className = "node";
+//     node.style.left = `${Math.random() * 100}%`;
+//     node.style.top = `${Math.random() * 100}%`;
+//     node.style.width = `${Math.random() * 6 + 3}px`;
+//     node.style.height = node.style.width;
+//     node.style.backgroundColor = `rgba(37, 99, 235, ${Math.random() * 0.2 + 0.1})`;
+//     bgAnimation.appendChild(node);
 
-    // Animate nodes
-    animateNode(node);
-  }
+//     // Animate nodes
+//     animateNode(node);
+//   }
 
-  // Create connections
-  for (let i = 0; i < 15; i++) {
-    const connection = document.createElement("div");
-    connection.className = "connection";
+//   // Create connections
+//   for (let i = 0; i < 15; i++) {
+//     const connection = document.createElement("div");
+//     connection.className = "connection";
 
-    const startX = Math.random() * 100;
-    const startY = Math.random() * 100;
-    const length = Math.random() * 100 + 50;
-    const angle = Math.random() * Math.PI * 2;
+//     const startX = Math.random() * 100;
+//     const startY = Math.random() * 100;
+//     const length = Math.random() * 100 + 50;
+//     const angle = Math.random() * Math.PI * 2;
 
-    connection.style.left = `${startX}%`;
-    connection.style.top = `${startY}%`;
-    connection.style.width = `${length}px`;
-    connection.style.transform = `rotate(${angle}rad)`;
+//     connection.style.left = `${startX}%`;
+//     connection.style.top = `${startY}%`;
+//     connection.style.width = `${length}px`;
+//     connection.style.transform = `rotate(${angle}rad)`;
 
-    bgAnimation.appendChild(connection);
-  }
-}
+//     bgAnimation.appendChild(connection);
+//   }
+// }
 
-function animateNode(node) {
-  const startX = parseFloat(node.style.left);
-  const startY = parseFloat(node.style.top);
-  const speedX = (Math.random() - 0.5) * 0.05;
-  const speedY = (Math.random() - 0.5) * 0.05;
+// function animateNode(node) {
+//   const startX = parseFloat(node.style.left);
+//   const startY = parseFloat(node.style.top);
+//   const speedX = (Math.random() - 0.5) * 0.05;
+//   const speedY = (Math.random() - 0.5) * 0.05;
 
-  function move() {
-    let x = parseFloat(node.style.left) + speedX;
-    let y = parseFloat(node.style.top) + speedY;
+//   function move() {
+//     let x = parseFloat(node.style.left) + speedX;
+//     let y = parseFloat(node.style.top) + speedY;
 
-    // Bounce off edges
-    if (x < 0 || x > 100) x = startX;
-    if (y < 0 || y > 100) y = startY;
+//     // Bounce off edges
+//     if (x < 0 || x > 100) x = startX;
+//     if (y < 0 || y > 100) y = startY;
 
-    node.style.left = `${x}%`;
-    node.style.top = `${y}%`;
+//     node.style.left = `${x}%`;
+//     node.style.top = `${y}%`;
 
-    requestAnimationFrame(move);
-  }
+//     requestAnimationFrame(move);
+//   }
 
-  move();
-}
+//   move();
+// }
 
-// System stats animation
-function animateStats() {
-  const onlineUsers = document.getElementById("onlineUsers");
-  const messageRate = document.getElementById("messageRate");
-  const serverNodes = document.getElementById("serverNodes");
+// // System stats animation
+// function animateStats() {
+//   const onlineUsers = document.getElementById("onlineUsers");
+//   const messageRate = document.getElementById("messageRate");
+//   const serverNodes = document.getElementById("serverNodes");
 
-  // Simulate changing stats
-  setInterval(() => {
-    const users = parseInt(onlineUsers.textContent.replace(/,/g, ""));
-    const newUsers = users + Math.floor(Math.random() * 21) - 10;
-    onlineUsers.textContent = Math.max(
-      8000,
-      Math.min(9000, newUsers),
-    ).toLocaleString();
+//   // Simulate changing stats
+//   setInterval(() => {
+//     const users = parseInt(onlineUsers.textContent.replace(/,/g, ""));
+//     const newUsers = users + Math.floor(Math.random() * 21) - 10;
+//     onlineUsers.textContent = Math.max(
+//       8000,
+//       Math.min(9000, newUsers),
+//     ).toLocaleString();
 
-    const rate = parseInt(messageRate.textContent);
-    const newRate = rate + Math.floor(Math.random() * 11) - 5;
-    messageRate.textContent = Math.max(120, Math.min(180, newRate)) + "/sec";
-  }, 3000);
-}
+//     const rate = parseInt(messageRate.textContent);
+//     const newRate = rate + Math.floor(Math.random() * 11) - 5;
+//     messageRate.textContent = Math.max(120, Math.min(180, newRate)) + "/sec";
+//   }, 3000);
+// }
 
 // Form functionality
 document.addEventListener("DOMContentLoaded", function () {
-  createBackgroundAnimation();
-  animateStats();
+  // createBackgroundAnimation();
+  // animateStats();
 
   const loginForm = document.getElementById("loginForm");
   const usernameInput = document.getElementById("username");
@@ -125,14 +125,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const errorMessage = document.getElementById("errorMessage");
   const successMessage = document.getElementById("successMessage");
   const signupLink = document.getElementById("signupLink");
-
-  // Demo credentials
-  const demoCredentials = {
-    admin: "nexuschat123",
-    john: "password123",
-    jane: "test123",
-    alex: "demo123",
-  };
 
   // Form submission
   loginForm.addEventListener("submit", async function (e) {
@@ -233,14 +225,4 @@ document.addEventListener("DOMContentLoaded", function () {
       successMessage.style.display = "none";
     }, 5000);
   }
-
-  // Demo auto-fill for presentation
-  setTimeout(() => {
-    if (!localStorage.getItem("demoShown")) {
-      usernameInput.value = "admin";
-      passwordInput.value = "nexuschat123";
-      showSuccess('Demo credentials auto-filled. Click "Sign In" to continue.');
-      localStorage.setItem("demoShown", "true");
-    }
-  }, 1000);
 });

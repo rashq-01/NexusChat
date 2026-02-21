@@ -22,12 +22,6 @@ app.use("/api/auth",authRoute);
 app.use("/api/messages",chatRouter);
 
 
-//Unknown Routes (404)
-// app.use((req,res,next)=>{
-//     next(new AppError("Route not Found",404));
-// })
-
-
 //Global Error Handler
 app.use(errorHandler);
 
