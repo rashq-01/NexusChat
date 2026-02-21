@@ -151,7 +151,7 @@ async function verifyEmail(req,res){
   });
 
   if(!user){
-    throw new AppError("Link Expired...",400);
+    return res.redirect("/public/emailUnverified.html");
   }
 
   user.isVerified = true;
@@ -160,10 +160,7 @@ async function verifyEmail(req,res){
 
   await user.save();
 
-  res.status(200).json({
-    success : true,
-    message : "Email verified successFully"
-  });
+  return res.redirect("/public/emailVerified.html");
 }
 
 function verifyToken(req,res){
