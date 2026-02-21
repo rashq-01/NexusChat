@@ -1,6 +1,9 @@
+const activeChatParticipants = document.getElementById(
+  "active-chat-participants",
+);
 import socket from "/src/js/chat/socket.js";
 import {
-  users,
+  users,activeChatId,
 } from "/src/js/auth/chatState.js";
 import {
   switchChat,
@@ -30,6 +33,12 @@ socket.on("userPresence", ({ username, data }) => {
     statusEl.classList.add(data);
   } else {
     if (statusEl) statusEl.remove();
+  }
+  if(activeChatId===username){
+    activeChatParticipants.innerHTML = data==='online' ? `
+    <span class="status-indicator online"></span>
+    ${"Online"}
+  ` : "";
   }
 });
 

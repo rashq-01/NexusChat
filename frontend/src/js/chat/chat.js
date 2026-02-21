@@ -318,7 +318,6 @@ function renderChatsList(filter = "") {
                   (lastMessage.content.length > 30 ? "..." : "")
                 : "No messages yet"
             }
-            ${user.id === activeChatId && user.status === "typing" ? '<span style="color: var(--typing);"> is typing...</span>' : ""}
           </div>
           <div class="chat-meta">
             ${unreadCount > 0 ? `<div class="unread-count">${unreadCount}</div>` : ""}
