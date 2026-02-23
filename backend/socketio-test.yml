@@ -1,0 +1,15 @@
+config:
+  target: "http://localhost:3000"
+  phases:
+    - duration: 10
+      arrivalRate: 1
+  engines:
+    socketio-v3: {}
+scenarios:
+  - name: "Socket.io connection test"
+    engine: "socketio-v3"
+    flow:
+      - emit:
+          channel: "message"
+          data: "Hello from Artillery"
+      - think: 1

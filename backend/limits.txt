@@ -1,0 +1,33 @@
+TEST DATE: February 22, 2026
+
+LEVEL 1: 500 users
+├── Connections: 500/500 (100%)
+├── Messages/sec: 45
+├── Avg Latency: 85ms
+├── CPU: 35%
+└── Memory: 42%
+
+LEVEL 2: 1000 users
+├── Connections: 1000/1000 (100%)
+├── Messages/sec: 92
+├── Avg Latency: 112ms
+├── CPU: 58%
+└── Memory: 61%
+
+LEVEL 3: 2500 users
+├── Connections: 2498/2500 (99.9%)
+├── Messages/sec: 210
+├── Avg Latency: 187ms
+├── CPU: 79%
+└── Memory: 84%
+
+LEVEL 4: 5000 users
+├── Connections: 4850/5000 (97%)
+├── Messages/sec: 398
+├── Avg Latency: 445ms
+├── CPU: 94%
+└── Memory: 91%
+└── ⚠️ First failures detected
+
+MAX SUSTAINABLE LOAD: ~4500 concurrent users
+BREAKING POINT: 5000+ users (memory/cpu limit)

@@ -1,0 +1,15 @@
+config:
+  target: "http://localhost:5000"
+  socketio:
+    path: "/socket.io"
+    transports: ["websocket"]
+    auth:
+      username: "loadtest"
+
+scenarios:
+  - name: "Connection test"
+    engine: socketio
+    flow:
+      - connect: {}
+      - think: 2
+      - disconnect: {}

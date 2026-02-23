@@ -1,9 +1,10 @@
 const socketIO = require("socket.io");
 const authSocket = require("./authSocket");
-const {registerMessageHandler} = require("./messageSocket");
+const { registerMessageHandler } = require("./messageSocket");
 const presenceSocket = require("./presenceSocket");
 const { registerTypingHandler } = require("./typingSocket");
-const {messageReadHandler} = require("./readSocket");
+const { messageReadHandler } = require("./readSocket");
+const { userToSocket, socketToUser } = require("./user-socketMap");
 
 function initializeSocket(httpServer) {
   const io = socketIO(httpServer, {
@@ -13,20 +14,59 @@ function initializeSocket(httpServer) {
     },
   });
 
-//   io.use(authSocket);
-
   io.on("connection", (socket) => {
-    socket.user = socket.handshake.auth;
-    console.log("User Connected : ", socket.user.username, " Socket : ", socket.id);
+    // IMPORTANT: Get username from handshake
+    const username = socket.handshake.auth?.username;
+    
+    if (!username) {
+      console.log("❌ No username provided, disconnecting");
+      socket.disconnect();
+      return;
+    }
 
-    registerMessageHandler(socket, io); // For messages
-    presenceSocket(socket, io); //for (offline,online)
-    registerTypingHandler(socket, io); // For typing indicator
-    messageReadHandler(socket,io); // For Message reading
+    // Set user on socket
+    socket.user = { username };
+    
+    // Add to maps
+    if (!userToSocket.has(username)) {
+      userToSocket.set(username, new Set());
+    }
+    userToSocket.get(username).add(socket.id);
+    socketToUser.set(socket.id, username);
 
-    // socket.on("disconnect",()=>{
-    //     console.log("User disconnected : ",socket.user._id, "Socket : ",socket.id);
-    // });
+    console.log(`\n✅ User connected: ${username} | Socket: ${socket.id}`);
+    console.log(`📊 Active users: ${userToSocket.size}`);
+
+    // Register handlers
+    registerMessageHandler(socket, io);
+    presenceSocket(socket, io);
+    registerTypingHandler(socket, io);
+    messageReadHandler(socket, io);
+
+    // Broadcast online status
+    socket.broadcast.emit("userPresence", {
+      username,
+      data: "online"
+    });
+
+    socket.on("disconnect", () => {
+      // Remove from maps
+      const userSockets = userToSocket.get(username);
+      if (userSockets) {
+        userSockets.delete(socket.id);
+        if (userSockets.size === 0) {
+          userToSocket.delete(username);
+          socket.broadcast.emit("userPresence", {
+            username,
+            data: "offline"
+          });
+        }
+      }
+      socketToUser.delete(socket.id);
+      
+      console.log(`❌ User disconnected: ${username} | Socket: ${socket.id}`);
+      console.log(`📊 Active users: ${userToSocket.size}`);
+    });
   });
 
   return io;

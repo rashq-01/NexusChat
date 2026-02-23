@@ -1,0 +1,40 @@
+config:
+  target: "http://localhost:5000"
+  phases:
+    - duration: 30
+      arrivalRate: 1
+      rampTo: 10
+      name: "Ramp up to 10 users"
+    - duration: 30
+      arrivalRate: 10
+      name: "Sustain 10 users"
+  engines:
+    socketio-v3:
+      path: "/socket.io"
+      transports: ["websocket"]
+  processor: "./artillery-auth.js"
+
+scenarios:
+  - name: "Chat user simulation"
+    engine: socketio-v3
+    flow:
+      - function: "setUserAuth"
+      - emit:
+          channel: "typing_start"
+          data:
+            receiverUsername: "rohan_tech"
+            username: "{{ username }}"
+      - think: 2
+      - emit:
+          channel: "typing_stop"
+          data:
+            receiverUsername: "rohan_tech"
+            username: "{{ username }}"
+      - think: 3
+      - emit:
+          channel: "send_message"
+          data:
+            receiverUsername: "rohan_tech"
+            content: "Load test message from {{ username }}"
+            type: "text"
+      - think: 5
