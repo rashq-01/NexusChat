@@ -6,6 +6,7 @@ const {chatRouter} = require("./routes/chatRoute");
 const AppError = require("./utils/AppError");
 const {errorHandler} = require("./middlewares/errorMiddleware");
 const path = require("path");
+const authMiddleware = require("../src/middlewares/authMiddleware");
 
 
 const app = express();
@@ -19,7 +20,7 @@ app.use(express.static(path.join(__dirname,"../../frontend")));
 
 //Routes
 app.use("/api/auth",authRoute);
-app.use("/api/messages",chatRouter);
+app.use("/api/messages",authMiddleware,chatRouter);
 
 
 //Global Error Handler

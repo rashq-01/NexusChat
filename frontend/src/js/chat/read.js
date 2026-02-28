@@ -4,13 +4,16 @@
 // activeChatId        -> currently open chat id
 // messageList         -> container holding message DOM elements
 
+import {currentUSER} from "/src/js/chat/chat.js"
+
 
 //When chat window opens
 function onChatOpen(chatId){
     activeChatId = chatId;
 
     socket.emit("mark_read",{
-        chatId : activeChatId
+        chatId : activeChatId,
+        seenBy : currentUSER.username
     });
 }
 

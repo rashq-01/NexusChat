@@ -28,14 +28,18 @@ const getUserChats = asyncHandler(async (req, res) => {
 });
 
 const getMessages = asyncHandler(async (req, res) => {
-  const { chatId , username} = req.query;
+  const { chatId, username } = req.query;
   const chats = await Chat.find({
-    participants: {$all: [username,chatId]},
-  }).select("_id").sort({ updatedAt: -1 });
+    participants: { $all: [username, chatId] },
+  })
+    .select("_id")
+    .sort({ updatedAt: -1 });
 
-  const chatIds = chats.map(chat=>chat._id);
+  const chatIds = chats.map((chat) => chat._id);
 
-  const messages = await Message.find({ chatId : {$in : chatIds} }).sort({ createdAt: 1 });
+  const messages = await Message.find({ chatId: { $in: chatIds } }).sort({
+    createdAt: 1,
+  });
 
   res.status(201).json({
     success: true,
@@ -43,15 +47,23 @@ const getMessages = asyncHandler(async (req, res) => {
   });
 });
 
-async function markAsRead(username,receiverUsername){
+async function markAsRead(username, receiverUsername) {
   const chats = await Chat.find({
-    participants: {$all: [username,receiverUsername]},
-  }).select("_id")
+    participants: { $all: [username, receiverUsername] },
+  }).select("_id");
 
-  const chatIds = chats.map(chat=>chat._id);
+  const chatIds = chats.map((chat) => chat._id);
 
-  await Message.updateMany({ chatId : {$in : chatIds}},{status: "read"});
+  await Message.updateMany(
+    {
+      chatId: { $in: chatIds },
+      senderId: receiverUsername ,
+      status : {$ne : "read"},
+    },
+    {
+      $set: { status: "read" },
+    },
+  );
 }
 
-
-module.exports = {getUserChats,getMessages,markAsRead};
+module.exports = { getUserChats, getMessages, markAsRead };

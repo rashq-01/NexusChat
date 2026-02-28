@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   try {
     const res = await fetch("http://localhost:5000/api/auth/verify-token", {
       headers: {
-        Authorization: token,
+        Authorization: `Bearer ${token}`,
       },
     });
     const data = await res.json();

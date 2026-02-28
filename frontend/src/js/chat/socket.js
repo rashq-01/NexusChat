@@ -1,6 +1,8 @@
 const currentUSER = JSON.parse(localStorage.getItem("userCredentials"));
 const token = localStorage.getItem("token");
-console.log(token);
+if(!token){
+  window.location.href = '/';
+}
 import { HOST } from "/src/js/HOSTS.js";
 
 const socket = io(HOST, {

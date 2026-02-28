@@ -8,7 +8,7 @@ const sendEmail = require("../utils/nodemailer");
 const asyncHandler = require("../utils/asyncHandler");
 
 const registerUser = asyncHandler(async function registerUser(req, res) {
-  const { firstName,lastName,username, email, password } = req.body;
+  const { firstName, lastName, username, email, password } = req.body;
 
   //Fields Check
   if (!firstName || !lastName || !username || !email || !password) {
@@ -33,7 +33,7 @@ const registerUser = asyncHandler(async function registerUser(req, res) {
   const token = crypto.randomBytes(32).toString("hex");
 
   user.emailVerificationToken = token;
-  user.emailVerificationExpires = Date.now() + (24 * 60 * 60 * 1000); //24hr
+  user.emailVerificationExpires = Date.now() + 24 * 60 * 60 * 1000; //24hr
 
   const verifyUrl = `http://localhost:5000/api/auth/verify-email?token=${token}`;
 
@@ -42,7 +42,7 @@ const registerUser = asyncHandler(async function registerUser(req, res) {
   await sendEmail({
     to: user.email,
     subject: "NexusChat Verification url",
-html: `
+    html: `
 <div style="background:#f8fafc;padding:40px 20px;font-family:Segoe UI,Roboto,Helvetica,Arial,sans-serif;">
   <div style="max-width:520px;margin:auto;background:#ffffff;border-radius:12px;box-shadow:0 20px 40px rgba(0,0,0,0.1);overflow:hidden;">
     
@@ -87,8 +87,7 @@ html: `
 
   </div>
 </div>
-`
-
+`,
   });
 
   res.status(201).json({
@@ -99,6 +98,7 @@ html: `
 
 const loginUser = asyncHandler(async function loginUser(req, res) {
   const { userOrEmail, password } = req.body;
+  console.log("REQ BODY",req.body);
 
   if (!userOrEmail || !password) {
     throw new AppError("Invalid Credentials", 401);
@@ -121,36 +121,34 @@ const loginUser = asyncHandler(async function loginUser(req, res) {
   }
 
   const friends = await User.find({
-    _id : {$ne : user._id}
+    _id: { $ne: user._id },
   }).select("-password -__v");
 
   const token = generateToken({ userId: user._id, username: user.username });
   res.status(200).json({
-    success : true,
+    success: true,
     token,
     friends,
     user: {
       id: user._id,
-      firstName : user.firstName,
-      lastName : user.lastName,
+      firstName: user.firstName,
+      lastName: user.lastName,
       username: user.username,
       email: user.email,
       isVerified: user.isVerified,
     },
   });
-
 });
 
+async function verifyEmail(req, res) {
+  const { token } = req.query;
 
-async function verifyEmail(req,res){
-  const {token} = req.query;
-
-  const user =  await User.findOne({
-    emailVerificationToken : token,
-    emailVerificationExpires : {$gt : Date.now()}
+  const user = await User.findOne({
+    emailVerificationToken: token,
+    emailVerificationExpires: { $gt: Date.now() },
   });
 
-  if(!user){
+  if (!user) {
     return res.redirect("/public/emailUnverified.html");
   }
 
@@ -163,21 +161,24 @@ async function verifyEmail(req,res){
   return res.redirect("/public/emailVerified.html");
 }
 
-function verifyToken(req,res){
-  const token = req.headers.authorization;
-  if(!token){
-    return res.status(401).json({success : false});
+function verifyToken(req, res) {
+  // Extraction of header
+  const header = req.headers.authorization;
+
+  //Checking of header
+  if (!header || !header.startsWith("Bearer ")) {
+    return res.status(401).json({ success: false, message: "Unauthorized" });
   }
 
-  try{
-    jwt.verify(token,process.env.JWT_SECRET);
-    res.status(200).json({success : true});
+  // token splitting
+  const token = header.split(" ")[1];
 
-  }catch(err){
-    res.status(401).json({success : false});
+  try {
+    jwt.verify(token, process.env.JWT_SECRET);
+    res.status(200).json({ success: true });
+  } catch (err) {
+    res.status(401).json({ success: false });
   }
-
 }
 
-
-module.exports = { registerUser, loginUser, verifyEmail,verifyToken};
+module.exports = { registerUser, loginUser, verifyEmail, verifyToken };

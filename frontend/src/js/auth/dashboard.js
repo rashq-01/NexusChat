@@ -1,9 +1,5 @@
 import socket from "/src/js/chat/socket.js";
 const token = localStorage.getItem("token");
-if (!token) {
-  alert("Unauthorized. Please login again.");
-  window.location.href = "/";
-}
 import {renderChatsList,renderMessages,getAvatarColor,sendMessage,updateCurrentUserInfo,isLoggedIn,handleResize,currentUser,isMobile,adjustTextareaHeight,messages,fetchMessages,initChats,markMessagesAsRead} from "/src/js/chat/chat.js"
 import {activeChatId,users,setActiveChatId} from "/src/js/auth/chatState.js"
 
@@ -539,7 +535,7 @@ function attachLocation() {
 
   messages[activeChatId].push(newMessage);
   renderMessages(activeChatId);
-  renderChatsList(searchInput.value);
+  renderChatsList();
 
   attachmentsModal.classList.remove("active");
   overlay.classList.remove("active");
