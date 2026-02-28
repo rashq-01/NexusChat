@@ -11,7 +11,6 @@ function registerTypingHandler(socket,io){
         if(!receiverSockets)return;
         
         receiverSockets.forEach((socketId)=>{
-            console.log("typing started by : ",username);
             io.to(socketId).emit("typing_start",{
                 receiverUsername,
                 username,
@@ -23,8 +22,6 @@ function registerTypingHandler(socket,io){
 
     //typing stop
     socket.on("typing_stop",({receiverUsername,username})=>{
-
-        console.log("typing stopped by : ",username,receiverUsername);
 
         const receiverSockets = userToSocket.get(receiverUsername);
 

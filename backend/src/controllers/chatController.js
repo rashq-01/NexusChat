@@ -32,7 +32,6 @@ const getMessages = asyncHandler(async (req, res) => {
   const chats = await Chat.find({
     participants: {$all: [username,chatId]},
   }).select("_id").sort({ updatedAt: -1 });
-  console.log(chatId,username);
 
   const chatIds = chats.map(chat=>chat._id);
 
@@ -52,7 +51,6 @@ async function markAsRead(username,receiverUsername){
   const chatIds = chats.map(chat=>chat._id);
 
   await Message.updateMany({ chatId : {$in : chatIds}},{status: "read"});
-  console.log("Message read by ",username);
 }
 
 

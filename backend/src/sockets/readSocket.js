@@ -11,7 +11,6 @@ async function messageReadHandler(socket,io){
         const receiverSockets = userToSocket.get(receiverUsername);
         if(!receiverSockets)return;
         
-        console.log("message Read by ",username);
         receiverSockets.forEach((socketId)=>{
             io.to(socketId).emit("message_read",{
                 username,

@@ -13,11 +13,10 @@ function initializeSocket(httpServer) {
     },
   });
 
-//   io.use(authSocket);
+  io.use(authSocket);
 
   io.on("connection", (socket) => {
     socket.user = socket.handshake.auth;
-    console.log("User Connected : ", socket.user.username, " Socket : ", socket.id);
 
     registerMessageHandler(socket, io); // For messages
     presenceSocket(socket, io); //for (offline,online)

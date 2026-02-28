@@ -13,8 +13,6 @@ function presenceSocket(socket, io) {
   // Mapping
   userToSocket.get(username).add(socket.id);
   socketToUser.set(socket.id, username);
-  console.log(userToSocket);
-  console.log(socketToUser);
 
   socket.emit("onlineUsersSnapshot",{
     users : Array.from(userToSocket.keys()),
@@ -38,8 +36,6 @@ function presenceSocket(socket, io) {
       //   } catch (err) {
       //     console.log("Failed to update lastSeen");
       //   }
-      console.log(userToSocket);
-      console.log(socketToUser);
 
       socket.broadcast.emit("userPresence", {
         username,

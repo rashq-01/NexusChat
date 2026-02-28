@@ -5,7 +5,6 @@ const {userToSocket, socketToUser} = require("./user-socketMap");
 
 function registerMessageHandler(socket, io) {
   socket.on("send_message", async ({receiverUsername,content,type}) => {
-    console.log(receiverUsername,content,type);
 
     const username = socket.user.username.toString();
 
