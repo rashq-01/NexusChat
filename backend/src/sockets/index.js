@@ -4,6 +4,8 @@ const {registerMessageHandler} = require("./messageSocket");
 const presenceSocket = require("./presenceSocket");
 const { registerTypingHandler } = require("./typingSocket");
 const {messageReadHandler} = require("./readSocket");
+const redis = require("../config/redis/client");
+const socketManager = require("../config/redis/socketManager");
 
 function initializeSocket(httpServer) {
   const io = socketIO(httpServer, {
@@ -13,11 +15,21 @@ function initializeSocket(httpServer) {
     },
   });
 
+  // auth Middleware
   io.use(authSocket);
 
   io.on("connection", (socket) => {
-    socket.user = socket.handshake.auth;
+    //get username from auth
+    const username = socket.user?.username;
+    if(!username){
+      console.log("No username provided, disconnecting......");
+      socket.disconnect();
+      return;
+    }
 
+    console.log(`User connecting : ${username} with socket ${socket.id}`);
+
+    
     registerMessageHandler(socket, io); // For messages
     presenceSocket(socket, io); //for (offline,online)
     registerTypingHandler(socket, io); // For typing indicator

@@ -23,7 +23,7 @@ class SocketManager{
             return false;
         }
     }
-
+ 
     //Removing a socket (disconnect)
     async removeUserSocket(socketId){
         try{
@@ -40,6 +40,8 @@ class SocketManager{
 
                 const remainingSockets = await client.sCard(`user:sockets:${username}`);
                 if(remainingSockets==0){
+
+                    await client.del(`user:sockets:${username}`);
                     console.log(`${username} is now completely offline`);
 
                     return {username,isOffline:true};
@@ -61,8 +63,8 @@ class SocketManager{
     // method to get all sockets of user
     async getUserSockets(username){
         try{
-            const clinet = redisClient.getClient();
-            const sockets = await clinet.sMembers(`user:sockets:${username}`);
+            const client = redisClient.getClient();
+            const sockets = await client.sMembers(`user:sockets:${username}`);
             return sockets || [];
         }
         catch(err){
@@ -105,7 +107,7 @@ class SocketManager{
                 const sockets = await client.sMembers(key);
                 onlineUsers.push({
                     username,
-                    socketCount : socket.length,
+                    socketCount : sockets.length,
                     sockets
                 });
             }

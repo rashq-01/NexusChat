@@ -264,7 +264,7 @@ function renderChatsList(filter = "") {
     const aLast = aMsgs.length ? aMsgs[aMsgs.length - 1] : null;
     const bLast = bMsgs.length ? bMsgs[bMsgs.length - 1] : null;
 
-    // count unread
+
     const aUnread = aMsgs.filter(
       (m) => m.status !== "read" && m.senderId !== currentUSER.username,
     ).length;
@@ -273,11 +273,11 @@ function renderChatsList(filter = "") {
       (m) => m.status !== "read" && m.senderId !== currentUSER.username,
     ).length;
 
-    // 🔥 Priority 1: users with unread messages first
+
     if (aUnread > 0 && bUnread === 0) return -1;
     if (bUnread > 0 && aUnread === 0) return 1;
 
-    // 🔥 Priority 2: latest message date
+
     const aTime = aLast ? new Date(aLast.time).getTime() : 0;
     const bTime = bLast ? new Date(bLast.time).getTime() : 0;
 
