@@ -12,7 +12,7 @@ class SocketManager {
 
       //setting expiry
       await client.expire(`user:sockets:${username}`, 86400);
-      await client.expire(`socket:user:${socketId}`, 120);
+      await client.expire(`socket:user:${socketId}`, 86400);
 
       console.log(`Mapped ${username}<----->${socketId}`);
 
