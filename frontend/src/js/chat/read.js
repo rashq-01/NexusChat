@@ -7,17 +7,6 @@
 import {currentUSER} from "/src/js/chat/chat.js"
 
 
-//When chat window opens
-function onChatOpen(chatId){
-    activeChatId = chatId;
-
-    socket.emit("mark_read",{
-        chatId : activeChatId,
-        seenBy : currentUSER.username
-    });
-}
-
-
 
 socket.on("message_read",({messageId,readerId,chatId})=>{
     

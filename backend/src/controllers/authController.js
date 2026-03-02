@@ -98,7 +98,6 @@ const registerUser = asyncHandler(async function registerUser(req, res) {
 
 const loginUser = asyncHandler(async function loginUser(req, res) {
   const { userOrEmail, password } = req.body;
-  console.log("REQ BODY",req.body);
 
   if (!userOrEmail || !password) {
     throw new AppError("Invalid Credentials", 401);

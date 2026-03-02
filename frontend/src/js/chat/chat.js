@@ -341,8 +341,8 @@ function renderChatsList(filter = "") {
                 ? (lastMessage.senderId === currentUSER.username
                     ? `${currentUSER.username}: `
                     : "") +
-                  lastMessage.content.substring(0, 30) +
-                  (lastMessage.content.length > 30 ? "..." : "")
+                  lastMessage.content.substring(0, 18) +
+                  (lastMessage.content.length > 18 ? "..." : "")
                 : "No messages yet"
             }
           </div>
@@ -675,7 +675,6 @@ socket.on("receive_message", (message) => {
       `New message from ${newMessage.sender}`,
     );
   }
-
   renderMessages(activeChatId);
 });
 socket.on("message_read", async ({ username }) => {
@@ -687,7 +686,7 @@ async function updateMessageStatus(chatId) {
 
   if (chatMessages) {
     await fetchMessages(chatId);
-    if (chatId === activeChatId) {
+    if (chatId === activeChatId && chatMessages.at(-1).status!=='read') {
       renderMessages(chatId);
     }
   }

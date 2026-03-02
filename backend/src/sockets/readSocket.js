@@ -1,25 +1,39 @@
+const { userToSocket, socketToUser } = require("../sockets/user-socketMap");
+const { markAsRead } = require("../controllers/chatController");
+const redis = require("../config/redis/client");
+const socketManager = require("../config/redis/socketManager");
 
-const {userToSocket,socketToUser} = require("../sockets/user-socketMap")
-const {markAsRead} = require("../controllers/chatController")
+function messageReadHandler(socket, io) {
+  // Message start
+  socket.on("message_read", async ({ receiverUsername }) => {
+    const senderUsername = socket.user?.username;
 
-async function messageReadHandler(socket,io){
+    if (!senderUsername || !receiverUsername) return;
 
-    // typing start
-    socket.on("message_read",({username,receiverUsername})=>{
+    await markAsRead(senderUsername, receiverUsername);
+    console.log(`${senderUsername} read message(s) of ${receiverUsername}`);
 
-        markAsRead(username,receiverUsername);
-        const receiverSockets = userToSocket.get(receiverUsername);
-        if(!receiverSockets)return;
-        
-        receiverSockets.forEach((socketId)=>{
-            io.to(socketId).emit("message_read",{
-                username,
-                readStatus : true,
-            });
+    const receiverSockets =
+      await socketManager.getUserSockets(receiverUsername);
+
+    if (receiverSockets?.length > 0) {
+      for (const socketId of receiverSockets) {
+        io.to(socketId).emit("message_read", {
+          username: senderUsername,
+          readStatus: true,
         });
-    });
+      }
+    }
+
+    // Publishing to Redis
+    const client = redis.getClient();
+    await client.publish(
+      "chat:read",
+      JSON.stringify({
+        target: senderUsername,
+      }),
+    );
+  });
 }
 
-
-
-module.exports = {messageReadHandler};
+module.exports = { messageReadHandler };

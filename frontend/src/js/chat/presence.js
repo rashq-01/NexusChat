@@ -65,4 +65,6 @@ socket.on("onlineUsersSnapshot", (data) => {
     statusEl.classList.remove("online", "offline");
     statusEl.classList.add("online");
   });
+
+  renderOnlineUsers();
 });

@@ -1,13 +1,31 @@
 import socket from "/src/js/chat/socket.js";
 const token = localStorage.getItem("token");
-import {renderChatsList,renderMessages,getAvatarColor,sendMessage,updateCurrentUserInfo,isLoggedIn,handleResize,currentUser,isMobile,adjustTextareaHeight,messages,fetchMessages,initChats,markMessagesAsRead} from "/src/js/chat/chat.js"
-import {activeChatId,users,setActiveChatId} from "/src/js/auth/chatState.js"
-
+import {
+  renderChatsList,
+  renderMessages,
+  getAvatarColor,
+  sendMessage,
+  updateCurrentUserInfo,
+  isLoggedIn,
+  handleResize,
+  currentUser,
+  isMobile,
+  adjustTextareaHeight,
+  messages,
+  fetchMessages,
+  initChats,
+  markMessagesAsRead,
+} from "/src/js/chat/chat.js";
+import {
+  activeChatId,
+  users,
+  setActiveChatId,
+} from "/src/js/auth/chatState.js";
 
 const currentUSER = JSON.parse(localStorage.getItem("userCredentials")) || {
   firstName: "John",
   lastName: "Doe",
-  email: "john.doe@example.com"
+  email: "john.doe@example.com",
 };
 
 // DOM Elements
@@ -23,7 +41,9 @@ const typingIndicator = document.getElementById("typing-indicator");
 const mobileMenuBtn = document.getElementById("mobile-menu-btn");
 const activeChatName = document.getElementById("active-chat-name");
 const activeChatAvatar = document.getElementById("active-chat-avatar");
-const activeChatParticipants = document.getElementById("active-chat-participants");
+const activeChatParticipants = document.getElementById(
+  "active-chat-participants",
+);
 const onlineUsersList = document.getElementById("online-users-list");
 const searchInput = document.getElementById("search-input");
 const overlay = document.getElementById("overlay");
@@ -31,7 +51,9 @@ const profileDropdownBtn = document.getElementById("profile-dropdown-btn");
 const profileDropdown = document.getElementById("profile-dropdown");
 const userProfile = document.getElementById("user-profile");
 const username = document.querySelectorAll(".username");
-const currentUserAvatarText = document.querySelectorAll(".currentUserAvatarText");
+const currentUserAvatarText = document.querySelectorAll(
+  ".currentUserAvatarText",
+);
 const logoutBtn = document.getElementById("logout-btn");
 const viewProfileBtn = document.getElementById("view-profile-btn");
 const userProfileModal = document.getElementById("user-profile-modal");
@@ -66,7 +88,7 @@ function renderOnlineUsers() {
   const onlineUsers = users.filter(
     (user) =>
       (user.status === "online" || user.status === "typing") &&
-      user.id !== currentUSER.username
+      user.id !== currentUSER.username,
   );
 
   if (onlineUsers.length === 0) {
@@ -110,12 +132,21 @@ function renderOnlineUsers() {
 
 // Switch to a different chat
 async function switchChat(chatId) {
+  if (chatId == activeChatId) return;
+
   setActiveChatId(chatId);
   await fetchMessages(chatId);
   markMessagesAsRead(chatId);
-  socket.emit("message_read",({username : currentUSER.username,receiverUsername:chatId}));
+  socket.emit("message_read", {
+    username: currentUSER.username,
+    receiverUsername: chatId,
+  });
   renderChatsList();
-  renderMessages(chatId);
+
+  if (messages[chatId].at(-1).status !== "read") {
+    renderMessages(chatId);
+  }
+
   renderOnlineUsers();
   if (isMobile) {
     sidebar.classList.remove("active");
@@ -128,8 +159,6 @@ async function switchChat(chatId) {
     smartReplies.style.display = "none";
   }
 }
-
-
 
 // Simulate real-time features
 function simulateRealTimeFeatures() {
@@ -330,10 +359,12 @@ function setupEventListeners() {
   });
 
   // User profile modal
-  document.getElementById("close-profile-modal").addEventListener("click", () => {
-    userProfileModal.classList.remove("active");
-    overlay.classList.remove("active");
-  });
+  document
+    .getElementById("close-profile-modal")
+    .addEventListener("click", () => {
+      userProfileModal.classList.remove("active");
+      overlay.classList.remove("active");
+    });
 
   document.getElementById("close-profile-btn").addEventListener("click", () => {
     userProfileModal.classList.remove("active");
@@ -353,7 +384,11 @@ function setupEventListeners() {
   // Attach file button
   attachBtn.addEventListener("click", () => {
     if (!activeChatId) {
-      showNotification("No Chat Selected", "error", "Please select a chat first.");
+      showNotification(
+        "No Chat Selected",
+        "error",
+        "Please select a chat first.",
+      );
       return;
     }
     attachmentsModal.classList.add("active");
@@ -361,21 +396,35 @@ function setupEventListeners() {
   });
 
   // Close attachments modal
-  document.getElementById("close-attach-modal").addEventListener("click", () => {
-    attachmentsModal.classList.remove("active");
-    overlay.classList.remove("active");
-  });
+  document
+    .getElementById("close-attach-modal")
+    .addEventListener("click", () => {
+      attachmentsModal.classList.remove("active");
+      overlay.classList.remove("active");
+    });
 
   // Attachment options
-  document.getElementById("attach-document").addEventListener("click", () => attachFile("document"));
-  document.getElementById("attach-image").addEventListener("click", () => attachFile("image"));
-  document.getElementById("attach-audio").addEventListener("click", () => attachFile("audio"));
-  document.getElementById("attach-location").addEventListener("click", attachLocation);
+  document
+    .getElementById("attach-document")
+    .addEventListener("click", () => attachFile("document"));
+  document
+    .getElementById("attach-image")
+    .addEventListener("click", () => attachFile("image"));
+  document
+    .getElementById("attach-audio")
+    .addEventListener("click", () => attachFile("audio"));
+  document
+    .getElementById("attach-location")
+    .addEventListener("click", attachLocation);
 
   // Emoji button
   emojiBtn.addEventListener("click", () => {
     if (!activeChatId) {
-      showNotification("No Chat Selected", "error", "Please select a chat first.");
+      showNotification(
+        "No Chat Selected",
+        "error",
+        "Please select a chat first.",
+      );
       return;
     }
     const emojis = ["😀", "👍", "🚀", "💡", "🎯", "🔥", "❤️", "😂"];
@@ -390,7 +439,11 @@ function setupEventListeners() {
   // Audio call button
   audioCallBtn.addEventListener("click", () => {
     if (!activeChatId) {
-      showNotification("No Chat Selected", "error", "Please select a chat first.");
+      showNotification(
+        "No Chat Selected",
+        "error",
+        "Please select a chat first.",
+      );
       return;
     }
     showNotification(
@@ -403,7 +456,11 @@ function setupEventListeners() {
   // Video call button
   videoCallBtn.addEventListener("click", () => {
     if (!activeChatId) {
-      showNotification("No Chat Selected", "error", "Please select a chat first.");
+      showNotification(
+        "No Chat Selected",
+        "error",
+        "Please select a chat first.",
+      );
       return;
     }
     showNotification(
@@ -417,10 +474,12 @@ function setupEventListeners() {
   chatInfoBtn.addEventListener("click", showChatInfo);
 
   // Close chat info modal
-  document.getElementById("close-chat-info-modal").addEventListener("click", () => {
-    chatInfoModal.classList.remove("active");
-    overlay.classList.remove("active");
-  });
+  document
+    .getElementById("close-chat-info-modal")
+    .addEventListener("click", () => {
+      chatInfoModal.classList.remove("active");
+      overlay.classList.remove("active");
+    });
 
   document.getElementById("close-chat-info").addEventListener("click", () => {
     chatInfoModal.classList.remove("active");
@@ -434,10 +493,12 @@ function setupEventListeners() {
   });
 
   // Settings modal
-  document.getElementById("close-settings-modal").addEventListener("click", () => {
-    settingsModal.classList.remove("active");
-    overlay.classList.remove("active");
-  });
+  document
+    .getElementById("close-settings-modal")
+    .addEventListener("click", () => {
+      settingsModal.classList.remove("active");
+      overlay.classList.remove("active");
+    });
 
   document.getElementById("save-settings").addEventListener("click", () => {
     showNotification(
@@ -481,7 +542,8 @@ function attachFile(type) {
     audio: ["meeting-recording.mp3", "voice-message.m4a", "audio-note.wav"],
   };
 
-  const randomFile = files[type][Math.floor(Math.random() * files[type].length)];
+  const randomFile =
+    files[type][Math.floor(Math.random() * files[type].length)];
 
   const newMessage = {
     id: Date.now(),
@@ -518,7 +580,8 @@ function attachLocation() {
     "Tokyo, Japan",
   ];
 
-  const randomLocation = locations[Math.floor(Math.random() * locations.length)];
+  const randomLocation =
+    locations[Math.floor(Math.random() * locations.length)];
 
   const newMessage = {
     id: Date.now(),
@@ -553,20 +616,29 @@ function updateSendButton() {
 
 // Show user profile modal
 function showUserProfile() {
-  document.getElementById("profile-modal-avatar").textContent = currentUser.avatar;
+  document.getElementById("profile-modal-avatar").textContent =
+    currentUser.avatar;
   document.getElementById("profile-modal-avatar").style.background =
     `linear-gradient(135deg, ${getAvatarColor(currentUser.avatar)}, ${getAvatarColor(currentUser.avatar)}80)`;
   document.getElementById("profile-modal-name").textContent = currentUser.name;
-  document.getElementById("profile-modal-email").textContent = currentUser.email;
+  document.getElementById("profile-modal-email").textContent =
+    currentUser.email;
   document.getElementById("profile-modal-status").textContent =
     currentUser.status.charAt(0).toUpperCase() + currentUser.status.slice(1);
-  document.getElementById("profile-modal-username").textContent = currentUser.username;
-  document.getElementById("profile-modal-userid").textContent = currentUser.userId;
-  document.getElementById("profile-modal-joined").textContent = currentUser.joinedDate;
-  document.getElementById("profile-modal-storage").textContent = currentUser.storageNode;
-  document.getElementById("profile-modal-ws").textContent = currentUser.wsServer;
-  document.getElementById("profile-modal-latency").textContent = currentUser.latency;
-  document.getElementById("profile-modal-sync").textContent = currentUser.lastSync;
+  document.getElementById("profile-modal-username").textContent =
+    currentUser.username;
+  document.getElementById("profile-modal-userid").textContent =
+    currentUser.userId;
+  document.getElementById("profile-modal-joined").textContent =
+    currentUser.joinedDate;
+  document.getElementById("profile-modal-storage").textContent =
+    currentUser.storageNode;
+  document.getElementById("profile-modal-ws").textContent =
+    currentUser.wsServer;
+  document.getElementById("profile-modal-latency").textContent =
+    currentUser.latency;
+  document.getElementById("profile-modal-sync").textContent =
+    currentUser.lastSync;
 
   userProfileModal.classList.add("active");
   if (isMobile) overlay.classList.add("active");
@@ -575,17 +647,25 @@ function showUserProfile() {
 // Update profile modal with real-time data
 function updateProfileModal() {
   if (userProfileModal.classList.contains("active")) {
-    document.getElementById("profile-modal-latency").textContent = currentUser.latency;
-    document.getElementById("profile-modal-ws").textContent = currentUser.wsServer;
-    document.getElementById("profile-modal-storage").textContent = currentUser.storageNode;
-    document.getElementById("profile-modal-sync").textContent = currentUser.lastSync;
+    document.getElementById("profile-modal-latency").textContent =
+      currentUser.latency;
+    document.getElementById("profile-modal-ws").textContent =
+      currentUser.wsServer;
+    document.getElementById("profile-modal-storage").textContent =
+      currentUser.storageNode;
+    document.getElementById("profile-modal-sync").textContent =
+      currentUser.lastSync;
   }
 }
 
 // Show chat info
 function showChatInfo() {
   if (!activeChatId) {
-    showNotification("No Chat Selected", "error", "Please select a chat first.");
+    showNotification(
+      "No Chat Selected",
+      "error",
+      "Please select a chat first.",
+    );
     return;
   }
 
@@ -598,7 +678,8 @@ function showChatInfo() {
   document.getElementById("chat-info-title").textContent = activeChat.name;
   document.getElementById("chat-info-subtitle").textContent =
     `Direct Message • ${activeChat.status === "online" ? "Online" : `Last seen ${activeChat.lastSeen}`}`;
-  document.getElementById("chat-message-count").textContent = chatMessages.length;
+  document.getElementById("chat-message-count").textContent =
+    chatMessages.length;
 
   chatInfoModal.classList.add("active");
   if (isMobile) overlay.classList.add("active");
@@ -714,7 +795,6 @@ function toggleLoginState() {
   }
 }
 
-
 // Initialize the application
 async function init() {
   if (users.length === 0) {
@@ -729,35 +809,32 @@ async function init() {
     `;
     return;
   }
-  
+
   loadingScreen.classList.add("hidden");
   chatInterface.style.display = "flex";
   loginPage.style.display = "none";
-  
-    await initChats();
-    renderChatsList();
-    if (activeChatId) {
-      await fetchMessages(activeChatId);
-      renderMessages(activeChatId);
-    }
-    renderOnlineUsers();
-    setupEventListeners();
-    updateCurrentUserInfo();
 
-    simulateRealTimeFeatures();
+  await initChats();
+  renderChatsList();
+  if (activeChatId) {
+    await fetchMessages(activeChatId);
+    renderMessages(activeChatId);
+  }
+  renderOnlineUsers();
+  setupEventListeners();
+  updateCurrentUserInfo();
 
-    window.addEventListener("resize", handleResize);
+  simulateRealTimeFeatures();
 
-    const savedTheme = localStorage.getItem("nexuschat-theme");
-    if (savedTheme === "dark") {
-      toggleDarkMode();
-    }
+  window.addEventListener("resize", handleResize);
+
+  const savedTheme = localStorage.getItem("nexuschat-theme");
+  if (savedTheme === "dark") {
+    toggleDarkMode();
+  }
 }
-
 
 // Initialize the app when the page loads
 document.addEventListener("DOMContentLoaded", init);
 
-
-
-export {switchChat,updateSendButton,showNotification,renderOnlineUsers};
+export { switchChat, updateSendButton, showNotification, renderOnlineUsers };

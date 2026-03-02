@@ -8,7 +8,6 @@ const authMiddleware = asyncHandler(
   async function authMiddleware(req, res, next) {
     // Extraction of header
     const header = req.headers.authorization;
-    console.log("Header",header);
 
     //Checking of header
     if (!header || !header.startsWith("Bearer ")) {
@@ -22,7 +21,6 @@ const authMiddleware = asyncHandler(
     let decoded;
     try {
       decoded = verifyToken(token);
-      console.log("Decoded : ",decoded);
     } catch (err) {
       throw new AppError("Unauthorized", 401);
     }
