@@ -20,6 +20,8 @@ class RedisClient {
             }
             return Math.min(retries * 100, 3000);
           },
+          keepAlive : 30000,
+          noDelay : true
         },
       });
 
@@ -81,6 +83,28 @@ class RedisClient {
       throw new Error("Redis client is not connected");
     }
     return this.subscriber;
+  }
+
+  async cacheUserList(userId,users,ttl=300){
+    const key = `userList:${userId}`;
+    await this.client.set(key, JSON.stringify(users), {EX: ttl,});
+  }
+
+  async getCachedUserList(userId){
+    const key = `userList:${userId}`;
+    const cached = await this.client.get(key);
+    return cached ? JSON.parse(cached) : null;
+  }
+
+  async cacheFriendsList(userId,friends,ttl=300){
+    const key = `friends:${userId}`;
+    await this.client.set(key,JSON.stringify(friends),{EX:ttl});
+  }
+
+  async getCachedFriendsList(userId){
+    const key = `friends:${userId}`;
+    const cached = await this.client.get(key);
+    return cached ? JSON.parse(cached) : null;
   }
 
   //Shutdown

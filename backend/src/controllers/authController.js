@@ -6,6 +6,8 @@ const AppError = require("../utils/AppError");
 const crypto = require("crypto");
 const sendEmail = require("../utils/nodemailer");
 const asyncHandler = require("../utils/asyncHandler");
+const redis = require("../config/redis/client");
+const Chat = require("../models/chat");
 
 const registerUser = asyncHandler(async function registerUser(req, res) {
   const { firstName, lastName, username, email, password } = req.body;
@@ -35,7 +37,7 @@ const registerUser = asyncHandler(async function registerUser(req, res) {
   user.emailVerificationToken = token;
   user.emailVerificationExpires = Date.now() + 24 * 60 * 60 * 1000; //24hr
 
-  const verifyUrl = `http://localhost:5000/api/auth/verify-email?token=${token}`;
+  const verifyUrl = `http://localhost:90/api/auth/verify-email?token=${token}`;
 
   await user.save();
 
@@ -119,9 +121,33 @@ const loginUser = asyncHandler(async function loginUser(req, res) {
     throw new AppError("Email not verified", 401);
   }
 
-  const friends = await User.find({
+  let friends = await redis.getCachedFriendsList(user._id.toString());
+
+  if (!friends) {
+    const recentChats = await Chat.find({participants : user.username}).sort({updatedAt : -1}).limit(20).lean();
+
+    const chatParticipantsIds = recentChats.flatMap(chat=>chat.participants).filter(p=>p!==user.username);
+
+    const chatFriends = await User.find({username : {$in : chatParticipantsIds}}).select("-password -__v").lean();
+
+    const remaining = 50 - chatFriends.length;
+    let otherFriends = [];
+    if(remaining>0){
+      otherFriends = await User.find({_id : {$nin: [user._id,...chatFriends.map(f => f._id)]}}).select("-password -__v").limit(remaining).lean();
+    }
+
+    /*
+    friends = await User.find({
     _id: { $ne: user._id },
-  }).select("-password -__v");
+    })
+    .select("-password -__v")
+    .limit(50)
+    .sort({createdAt : -1})
+    .lean();
+    */
+    friends = [...chatFriends,...otherFriends];
+    await redis.cacheFriendsList(user._id.toString(),friends,300);
+  }
 
   const token = generateToken({ userId: user._id, username: user.username });
   res.status(200).json({

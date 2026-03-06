@@ -1,4 +1,5 @@
 // Background animation
+import { HOST, PORT } from "/src/js/HOSTS.js";
 function createBackgroundAnimation() {
   const bgAnimation = document.getElementById("bgAnimation");
   const nodeCount = 25;
@@ -608,7 +609,7 @@ document.addEventListener("DOMContentLoaded", function () {
           '<div class="loading"></div> Creating Account...';
         try {
           const response = await fetch(
-            "http://localhost:5000/api/auth/register",
+            `http://localhost:${PORT}/api/auth/register`,
             {
               method: "POST",
               headers: {

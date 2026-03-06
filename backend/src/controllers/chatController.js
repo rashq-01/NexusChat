@@ -28,18 +28,26 @@ const getUserChats = asyncHandler(async (req, res) => {
 });
 
 const getMessages = asyncHandler(async (req, res) => {
-  const { chatId, username } = req.query;
+  const { chatId, username,page=1,limit=50 } = req.query;
+
+
   const chats = await Chat.find({
     participants: { $all: [username, chatId] },
   })
-    .select("_id")
-    .sort({ updatedAt: -1 });
+  .select("_id")
+  .lean()
+  .hint({participants : 1})
+  .sort({ updatedAt: -1 });
+
+  if(!chats){
+    return res.json({success: true,messages:[]});
+  }
 
   const chatIds = chats.map((chat) => chat._id);
 
   const messages = await Message.find({ chatId: { $in: chatIds } }).sort({
     createdAt: 1,
-  });
+  }).limit(50).lean().hint({chatId:1,createdAt: 1});
 
   res.status(201).json({
     success: true,

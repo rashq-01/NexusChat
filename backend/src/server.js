@@ -1,18 +1,23 @@
 require("dotenv").config();
 const http = require("http");
 const { initializeSocket } = require("./sockets/index.js");
-const app = require("./app.js");
+const {createApp} = require("./app.js");
 const connectDB = require("./config/db.js");
 const redisClient = require("../src/config/redis/client.js");
 const PubSubHandler = require("./config/redis/pubsubHandler.js");
 const socketManager = require("./config/redis/socketManager.js");
 const User = require("./models/user.js");
+const { createLoginLimiter } = require("./middlewares/rateLimiter.js");
 const PORT = process.env.PORT;
 
 async function startServer() {
   try {
     // Connecting Redis first
     await redisClient.connect();
+
+    const loginLimiter = createLoginLimiter();
+
+    const app = createApp(loginLimiter);
 
     // creating HTTP server
     const server = http.createServer(app);

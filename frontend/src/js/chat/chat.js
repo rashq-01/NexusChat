@@ -1,4 +1,5 @@
 import socket from "/src/js/chat/socket.js";
+import { PORT } from "/src/js/HOSTS.js";
 import {
   switchChat,
   updateSendButton,
@@ -44,7 +45,7 @@ const messages = {};
 async function fetchMessages(chatId) {
   const token = localStorage.getItem("token");
   const res = await fetch(
-    `http://localhost:5000/api/messages?chatId=${chatId}&username=${currentUSER.username}`,
+    `http://localhost:${PORT}/api/messages?chatId=${chatId}&username=${currentUSER.username}`,
     {
       headers: {
         Authorization: `Bearer ${token}`,

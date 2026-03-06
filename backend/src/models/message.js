@@ -6,7 +6,6 @@ const messageSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Chat",
       required: true,
-      index: true
     },
 
     senderId: {
@@ -56,5 +55,9 @@ const messageSchema = new mongoose.Schema(
     timestamps: true
   }
 );
+
+
+messageSchema.index({ chatId: 1, createdAt: 1 });
+messageSchema.index({ senderId: 1, status: 1 });
 
 module.exports = mongoose.model("Message", messageSchema);

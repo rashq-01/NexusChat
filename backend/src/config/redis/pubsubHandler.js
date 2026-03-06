@@ -74,7 +74,7 @@ class PubSubHandler {
   async handleReadReceipt(message) {
     try {
       const data = JSON.parse(message);
-      const sockets = await socketManager.getUserSockets(data.reader);
+      const sockets = await socketManager.getUserSockets(data.target);
 
       for (const socketId of sockets) {
         this.io.to(socketId).emit("message_read", {

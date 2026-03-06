@@ -1,3 +1,4 @@
+import { HOST , PORT } from "/src/js/HOSTS.js";
 document.addEventListener("DOMContentLoaded", async () => {
   const token = localStorage.getItem("token");
 
@@ -10,7 +11,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     return;
   }
   try {
-    const res = await fetch("http://localhost:5000/api/auth/verify-token", {
+    const res = await fetch(`http://localhost:${PORT}/api/auth/verify-token`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -151,7 +152,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // Show loading state
     loginButton.disabled = true;
     buttonText.innerHTML = '<div class="loading"></div> Signing in...';
-    const response = await fetch(`http://localhost:5000/api/auth/login`, {
+    const response = await fetch(`http://localhost:${PORT}/api/auth/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

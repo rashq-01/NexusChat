@@ -115,6 +115,19 @@ class SocketManager {
     }
   }
 
+  async getCachedOnlineUsers() {
+    const cacheKey = "online:users:count";
+    const cached = await redisClient.getClient().get(cacheKey);
+    if (cached) return JSON.parse(cached);
+
+    const users = await this.getAllOnlineUsers();
+    await redisClient
+      .getClient()
+      .set(cacheKey, JSON.stringify(users), { EX: 5 });
+
+    return users;
+  }
+
   // Clean up for stale entries
   async cleanup() {
     try {
