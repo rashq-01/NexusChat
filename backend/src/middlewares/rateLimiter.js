@@ -8,8 +8,8 @@ function createLoginLimiter(){
             sendCommand : (...args)=>redis.getClient().sendCommand([...args]),
             prefix : 'rl:login:'
         }),
-        windowMs : 15*60*1000,  // 15 minutes
-        max : 25, // 25 login attempts per ip
+        windowMs : 60*1000,  // 1 minutes
+        max : 30, // 30 login attempts per ip
         skipSuccessfulRequests : true,
         message : {success : false,message:'Too many login attempts'}
     })
