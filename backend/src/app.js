@@ -2,41 +2,38 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const authRoute = require("./routes/authRoute");
-const {chatRouter} = require("./routes/chatRoute");
-const testRoute = require("./routes/testRoutes")
+const { chatRouter } = require("./routes/chatRoute");
+const testRoute = require("./routes/testRoutes");
 const AppError = require("./utils/AppError");
-const {errorHandler} = require("./middlewares/errorMiddleware");
+const { errorHandler } = require("./middlewares/errorMiddleware");
 const path = require("path");
 const authMiddleware = require("../src/middlewares/authMiddleware");
 
+function createApp(loginLimiter) {
+  const app = express();
 
-function createApp(loginLimiter){
-    const app = express();
-    
-    //Middlewares
-    app.use(cors());
-    app.use(express.json());
-    app.use(express.urlencoded({extended: true}));
-    app.use(express.static(path.join(__dirname,"../../frontend")));
+  //Middlewares
+  app.use(cors());
+  app.use(express.json());
+  app.use(express.urlencoded({ extended: true }));
+  app.use(express.static(path.join(__dirname, "../../frontend")));
 
-    app.set("trust proxy",1);
-    
-    app.use('/api/auth/login',loginLimiter);
+  app.set("trust proxy", 1);
 
-    //Routes
-    app.use("/api/auth",authRoute);
-    app.use("/api/messages",authMiddleware,chatRouter);
-    app.use("/api/test",testRoute);
-    
-    
-    //Global Error Handler
-    app.use(errorHandler);
+  app.use("/api/auth/login", loginLimiter);
 
-    return app;
+  //Routes
+  app.use("/api/auth", authRoute);
+  app.use("/api/messages", authMiddleware, chatRouter);
+  app.use("/api/test", testRoute);
 
+  //Global Error Handler
+  app.use((req, res) => {
+    res.sendFile(path.join(__dirname, "../frontend/index.html"));
+  });
+  app.use(errorHandler);
+
+  return app;
 }
 
-
-
-
-module.exports = {createApp};
+module.exports = { createApp };

@@ -37,7 +37,7 @@ const registerUser = asyncHandler(async function registerUser(req, res) {
   user.emailVerificationToken = token;
   user.emailVerificationExpires = Date.now() + 24 * 60 * 60 * 1000; //24hr
 
-  const verifyUrl = `http://localhost:90/api/auth/verify-email?token=${token}`;
+  const verifyUrl = `http://localhost:80/api/auth/verify-email?token=${token}`;
 
   await user.save();
 

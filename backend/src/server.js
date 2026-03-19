@@ -48,11 +48,11 @@ async function startServer() {
       console.log(`Server started on http://localhost:${PORT}`);
     });
     let isShuttingDown = false;
-    // 🔥 graceful shutdown function
+    // graceful shutdown function
     const gracefulShutdown = async (signal) => {
       if(isShuttingDown)return;
       isShuttingDown = true;
-      console.log(`\n🛑 ${signal} received. Shutting down gracefully...`);
+      console.log(`\n ${signal} received. Shutting down gracefully...`);
 
       try {
         await socketManager.shutdown({
@@ -64,10 +64,10 @@ async function startServer() {
           await redisClient.disconnect();
         }
 
-        console.log("👋 Server exited cleanly");
+        console.log(" Server exited cleanly");
         process.exit(0);
       } catch (err) {
-        console.error("❌ Shutdown failed:", err.message);
+        console.error(" Shutdown failed:", err.message);
         process.exit(1);
       }
     };
@@ -86,7 +86,7 @@ async function startServer() {
     //   process.exit(0);
     // });
   } catch (err) {
-    console.log("Failed to start the server...");
+    console.log("Failed to start the server...: ",err.message);
     process.exit(1);
   }
 }
