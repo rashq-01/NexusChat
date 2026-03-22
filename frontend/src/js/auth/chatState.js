@@ -1,4 +1,4 @@
-const friends = JSON.parse(localStorage.getItem("friends")) || [];
+const friends = JSON.parse(localStorage.getItem("nexuschat:friends")) || [];
 // Helper functions
 function getRandomStatus() {
   const statuses = ["online", "offline", "idle", "typing"];
@@ -11,15 +11,26 @@ function getRandomLastSeen() {
 }
 
 // Convert friends to users format and create dummy messages
-const users = friends.map((friend) => ({
-  id: friend.username,
-  name: `${friend.firstName} ${friend.lastName}`,
-  avatar: `${friend.firstName[0]}${friend.lastName[0]}`,
-  status: "offline",
-  lastSeen: getRandomLastSeen(),
-  chatId: `#CHAT-${friend._id.slice(-3)}`,
-  verified: Math.random() > 0.5,
-}));
+const users = friends
+  .filter((friend) =>
+    friend &&
+    friend.username &&
+    friend.firstName?.length > 0 &&
+    friend.lastName?.length > 0
+  )
+  .map((friend) => {
+  const [firstName = "", lastName = ""] = (friend.fullName || "").split(" ");
+
+  return {
+    id: friend._id,
+    name: friend.fullName,
+    avatar: `${firstName[0] || ""}${lastName[0] || ""}`,
+    status: "offline",
+    lastSeen: getRandomLastSeen(),
+    chatId: `#CHAT-${friend._id.slice(-3)}`,
+    verified: Math.random() > 0.5,
+  };
+});
 
 
 let activeChatId = users[0]?.id ?? null;

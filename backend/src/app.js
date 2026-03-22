@@ -13,10 +13,15 @@ function createApp(loginLimiter) {
   const app = express();
 
   //Middlewares
-  app.use(cors());
+  app.use(cors({
+    origin: process.env.ALLOWED_ORIGINS?.split(",") || "http://localhost:80",
+    methods: ["GET","POST"],
+    credentials: true,
+  }));
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
-  app.use(express.static(path.join(__dirname, "../../frontend")));
+  const frontendPath = path.join(__dirname, "../../frontend");
+  app.use(express.static(frontendPath));
 
   app.set("trust proxy", 1);
 
@@ -29,8 +34,8 @@ function createApp(loginLimiter) {
 
   //Global Error Handler
   app.use((req, res) => {
-    res.sendFile(path.join(__dirname, "../frontend/index.html"));
-  });
+  res.sendFile(path.join(frontendPath, "index.html"));
+});
   app.use(errorHandler);
 
   return app;

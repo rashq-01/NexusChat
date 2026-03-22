@@ -29,14 +29,13 @@ const getUserChats = asyncHandler(async (req, res) => {
 
 const getMessages = asyncHandler(async (req, res) => {
   const { chatId, username,page=1,limit=50 } = req.query;
-
+  const skip = (parseInt(page)-1) * parseInt(limit);
 
   const chats = await Chat.find({
     participants: { $all: [username, chatId] },
   })
   .select("_id")
   .lean()
-  .hint({participants : 1})
   .sort({ updatedAt: -1 });
 
   if(!chats){
@@ -45,11 +44,14 @@ const getMessages = asyncHandler(async (req, res) => {
 
   const chatIds = chats.map((chat) => chat._id);
 
-  const messages = await Message.find({ chatId: { $in: chatIds } }).sort({
-    createdAt: 1,
-  }).limit(50).lean().hint({chatId:1,createdAt: 1});
+  const messages = await Message.find({ chatId: { $in: chatIds } })
+  .sort({createdAt: 1,})
+  .skip(skip)
+  .limit(parseInt(limit))
+  .lean()
+  .hint({chatId:1,createdAt: 1});
 
-  res.status(201).json({
+  res.status(200).json({
     success: true,
     messages,
   });

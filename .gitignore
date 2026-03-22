@@ -91,3 +91,4 @@ dist-ssr
 *.sln
 *.sw?
 mongo_data
+redis_data

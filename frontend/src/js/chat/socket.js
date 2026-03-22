@@ -1,5 +1,5 @@
-const currentUSER = JSON.parse(localStorage.getItem("userCredentials"));
-const token = localStorage.getItem("token");
+const currentUSER = JSON.parse(localStorage.getItem("nexuschat:userCredentials"));
+const token = localStorage.getItem("nexuschat:token");
 if(!token){
   window.location.href = '/';
 }

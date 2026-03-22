@@ -5,14 +5,17 @@ class SocketManager {
   async addUserSocket(username, socketId) {
     try {
       const client = redisClient.getClient();
+      const pipeline = client.multi();
 
-      await client.sAdd(`user:sockets:${username}`, socketId);
-
-      await client.set(`socket:user:${socketId}`, username);
-
+      pipeline.sAdd(`user:sockets:${username}`, socketId);
+      pipeline.set(`socket:user:${socketId}`, username);
+      pipeline.sAdd(`online:user:`,username);
       //setting expiry
-      await client.expire(`user:sockets:${username}`, 86400);
-      await client.expire(`socket:user:${socketId}`, 86400);
+      pipeline.expire(`user:sockets:${username}`, 86400);
+      pipeline.expire(`socket:user:${socketId}`, 86400);
+
+      //Executing them at once
+      await pipeline.exec();
 
       console.log(`Mapped ${username}<----->${socketId}`);
 
@@ -40,6 +43,7 @@ class SocketManager {
         const remainingSockets = await client.sCard(`user:sockets:${username}`);
         if (remainingSockets == 0) {
           await client.del(`user:sockets:${username}`);
+          await client.sRem("online:users",username);
           console.log(`${username} is now completely offline`);
 
           const onlineUsers = await this.getAllOnlineUsers();
@@ -97,18 +101,9 @@ class SocketManager {
   async getAllOnlineUsers() {
     try {
       const client = redisClient.getClient();
-      const keys = await client.keys("user:sockets:*");
-      const onlineUsers = [];
-      for (const key of keys) {
-        const username = key.replace("user:sockets:", "");
-        const sockets = await client.sMembers(key);
-        onlineUsers.push({
-          username,
-          socketCount: sockets.length,
-          sockets,
-        });
-      }
-      return onlineUsers;
+      const usernames = await client.sMembers("online:users");
+      
+      return usernames.map(username => ({username}));
     } catch (err) {
       console.log("Error getting online users.");
       return [];
@@ -172,16 +167,16 @@ class SocketManager {
 
   // Graceful shutdown cleanup
   async shutdown({ io, subscriber, User }) {
-    console.log("🛑 SocketManager shutdown started...");
+    console.log("SocketManager shutdown started...");
 
     try {
       const client = redisClient.getClient();
 
-      // 🔥 1. Get all online users
+      // 1. Getting all online users
       const onlineUsers = await this.getAllOnlineUsers();
       console.log(`Found ${onlineUsers.length} online users to cleanup`);
 
-      // 🔥 2. Mark everyone offline + broadcast
+      //  2. Marking everyone offline + broadcast
       for (const user of onlineUsers) {
         const username = user.username;
 
@@ -213,14 +208,17 @@ class SocketManager {
         }
       }
 
-      // 🔥 3. remove all socket:user mappings
+      // 3. removing all socket:user mappings
       const socketKeys = await client.keys("socket:user:*");
       if (socketKeys.length) {
         await client.del(socketKeys);
         console.log(`🧹 Removed ${socketKeys.length} socket mappings`);
       }
 
-      // 🔥 4. close socket.io server
+      //4. removing all online:users
+      await client.del("online:users");
+
+      //  5. closing socket.io server
       if (io) {
         await new Promise((resolve) => {
           io.close(() => {
@@ -230,20 +228,20 @@ class SocketManager {
         });
       }
 
-      // 🔥 5. unsubscribe pub/sub
+      //  6. unsubscribing pub/sub
       if (subscriber?.isOpen) {
         try {
           await subscriber.unsubscribe();
           await subscriber.quit();
-          console.log("✅ Redis subscriber closed");
+          console.log("Redis subscriber closed");
         } catch (err) {
           console.warn("Subscriber close warning:", err.message);
         }
       }
 
-      console.log("✅ SocketManager shutdown complete");
+      console.log("SocketManager shutdown complete");
     } catch (err) {
-      console.error("❌ Shutdown error:", err.message);
+      console.error("Shutdown error:", err.message);
     }
   }
 }

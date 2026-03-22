@@ -12,7 +12,7 @@ import {
   setActiveChatId,
 } from "/src/js/auth/chatState.js";
 // Get data from localStorage
-const currentUSER = JSON.parse(localStorage.getItem("userCredentials")) || {
+const currentUSER = JSON.parse(localStorage.getItem("nexuschat:userCredentials")) || {
   firstName: "John",
   lastName: "Doe",
   email: "john.doe@example.com",
@@ -41,9 +41,17 @@ const messages = {};
 // users.forEach((user) => {
 //   messages[user.id] = generateDummyMessages(user);
 // });
+const chatPagination = {};
+function getPagination(chatId){
+  if(!chatPagination[chatId]){
+    chatPagination[chatId] = {page:1,hasMore:true, loading: false};
+  }
+  return chatPagination[chatId];
+}
 
-async function fetchMessages(chatId) {
-  const token = localStorage.getItem("token");
+async function fetchMessages(chatId,page=1) {
+  const token = localStorage.getItem("nexuschat:token");
+  const limit = 50;
   const res = await fetch(
     `http://localhost:${PORT}/api/messages?chatId=${chatId}&username=${currentUSER.username}`,
     {
@@ -53,11 +61,12 @@ async function fetchMessages(chatId) {
     },
   );
   const data = await res.json();
-  if (!data.success) {
+  if (!data.success || !data.messages) {
+    messages[chatId] = messages[chatId] || [];
     return;
   }
 
-  messages[chatId] = data.messages.map((msg) => ({
+  const incoming = data.messages.map((msg)=>({
     id: msg._id,
     sender: msg.senderId,
     senderId: msg.senderId,
@@ -65,6 +74,17 @@ async function fetchMessages(chatId) {
     time: msg.createdAt,
     status: msg.status,
   }));
+
+  if(page==1){
+    messages[chatId] = incoming;
+  }
+  else{
+    messages[chatId] = [...incoming,...(messages[chatId] || [])];
+  }
+
+  const pagination = getPagination(chatId);
+  pagination.hasMore = incoming.length===limit;
+  pagination.page = page;
 }
 
 async function initChats() {
@@ -502,9 +522,14 @@ function renderMessages(chatId) {
     typingIndicator.style.display = "none";
   }
 
-  messagesContainer.scrollTop = messagesContainer.scrollHeight;
+  if (shouldAutoScroll()) {
+    messagesContainer.scrollTop = messagesContainer.scrollHeight; 
+  }
 }
-
+function shouldAutoScroll() {
+  const threshold = 150;
+  return messagesContainer.scrollHeight - messagesContainer.scrollTop - messagesContainer.clientHeight < threshold;
+}
 function addNewMessage(chatId, messageData) {
   // Adding to msg obj
   if (!messages[chatId]) {
@@ -567,6 +592,7 @@ function sendMessage() {
     status: "sent",
   };
   addNewMessage(activeChatId, newMessage);
+  
 
   messageInput.value = "";
   adjustTextareaHeight();
@@ -662,6 +688,8 @@ socket.on("receive_message", (message) => {
   // socket.emit("message_delivered",{username})
 
   addNewMessage(senderId, newMessage);
+  shouldAutoScroll();
+
   if (senderId === activeChatId) {
     markMessagesAsRead(senderId);
 
@@ -687,7 +715,7 @@ async function updateMessageStatus(chatId) {
 
   if (chatMessages) {
     await fetchMessages(chatId);
-    if (chatId === activeChatId && chatMessages.at(-1).status!=='read') {
+    if (chatId === activeChatId && chatMessages?.at(-1).status!=='read') {
       renderMessages(chatId);
     }
   }
@@ -708,6 +736,9 @@ function markMessagesAsRead(chatId) {
   }
   renderChatsList(searchInput.value);
 }
+function isLoggedInToggler(){
+  isLoggedIn = !isLoggedIn;
+}
 
 export {
   renderChatsList,
@@ -716,7 +747,7 @@ export {
   sendMessage,
   updateCurrentUserInfo,
   handleResize,
-  isLoggedIn,
+  isLoggedInToggler,
   currentUser,
   isMobile,
   adjustTextareaHeight,
@@ -726,4 +757,8 @@ export {
   updateUserStatus,
   initChats,
   markMessagesAsRead,
+  getPagination,
+  chatPagination,
+  getCurrentTime,
+  isLoggedIn,
 };

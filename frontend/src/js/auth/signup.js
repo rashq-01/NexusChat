@@ -699,32 +699,32 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
-  // Auto-fill demo data for presentation
-  setTimeout(() => {
-    if (!localStorage.getItem("signupDemoShown")) {
-      firstNameInput.value = "John";
-      lastNameInput.value = "Doe";
-      emailInput.value = "john.doe@example.com";
-      usernameInput.value = "johndoe";
-      passwordInput.value = "NexusChat123!";
-      confirmPasswordInput.value = "NexusChat123!";
-      agreeTermsCheckbox.checked = true;
+  // // Auto-fill demo data for presentation
+  // setTimeout(() => {
+  //   if (!localStorage.getItem("signupDemoShown")) {
+  //     firstNameInput.value = "John";
+  //     lastNameInput.value = "Doe";
+  //     emailInput.value = "john.doe@example.com";
+  //     usernameInput.value = "johndoe";
+  //     passwordInput.value = "NexusChat123!";
+  //     confirmPasswordInput.value = "NexusChat123!";
+  //     agreeTermsCheckbox.checked = true;
 
-      // Trigger validation
-      validateFirstName();
-      validateLastName();
-      validateEmail();
-      validateUsername();
-      updatePasswordStrength();
-      validatePassword();
-      validateConfirmPassword();
-      validateTerms();
+  //     // Trigger validation
+  //     validateFirstName();
+  //     validateLastName();
+  //     validateEmail();
+  //     validateUsername();
+  //     updatePasswordStrength();
+  //     validatePassword();
+  //     validateConfirmPassword();
+  //     validateTerms();
 
-      showMessage(
-        "info",
-        "Demo data auto-filled. You can proceed through the signup and email verification flow.",
-      );
-      localStorage.setItem("signupDemoShown", "true");
-    }
-  }, 500);
+  //     showMessage(
+  //       "info",
+  //       "Demo data auto-filled. You can proceed through the signup and email verification flow.",
+  //     );
+  //     localStorage.setItem("signupDemoShown", "true");
+  //   }
+  // }, 500);
 });

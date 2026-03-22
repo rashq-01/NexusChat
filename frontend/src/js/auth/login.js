@@ -1,6 +1,6 @@
 import { HOST , PORT } from "/src/js/HOSTS.js";
 document.addEventListener("DOMContentLoaded", async () => {
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem("nexuschat:token");
 
   const loader = document.getElementById("loader");
   const loginBox = document.getElementById("loginBox");
@@ -172,9 +172,9 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     showSuccess("Login successful! Redirecting to NexusChat...");
 
-    localStorage.setItem("token", data.token);
-    localStorage.setItem("userCredentials", JSON.stringify(data.user));
-    localStorage.setItem("friends",JSON.stringify(data.friends))
+    localStorage.setItem("nexuschat:token", data.token);
+    localStorage.setItem("nexuschat:userCredentials", JSON.stringify(data.user));
+    localStorage.setItem("nexuschat:friends",JSON.stringify(data.friends))
 
     window.location.href = "/public/dashboard.html";
   });

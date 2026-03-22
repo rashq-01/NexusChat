@@ -124,11 +124,24 @@ const loginUser = asyncHandler(async function loginUser(req, res) {
   let friends = await redis.getCachedFriendsList(user._id.toString());
 
   if (!friends) {
-    const recentChats = await Chat.find({participants : user.username}).sort({updatedAt : -1}).limit(20).lean();
+    const recentChats = await Chat.find({participants : {$in : [user.username]}})
+    .sort({updatedAt : -1})
+    .limit(20)
+    .lean();
 
-    const chatParticipantsIds = recentChats.flatMap(chat=>chat.participants).filter(p=>p!==user.username);
+    const chatParticipantsUsernames = [
+      ...new Set(
+        recentChats
+        .flatMap(chat => chat.participants)
+        .filter(p=>p!==user.username)
+      )
+    ]
 
-    const chatFriends = await User.find({username : {$in : chatParticipantsIds}}).select("-password -__v").lean();
+    const chatFriends = await User.find({
+      username : {$in : chatParticipantsUsernames}
+    })
+    .select("-password -__v")
+    .lean();
 
     const remaining = 50 - chatFriends.length;
     let otherFriends = [];
