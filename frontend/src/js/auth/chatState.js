@@ -19,8 +19,6 @@ const users = friends
     friend.lastName?.length > 0
   )
   .map((friend) => {
-  const [firstName = "", lastName = ""] = (friend.fullName || "").split(" ");
-
   return {
     id: friend._id,
     name: friend.fullName,
