@@ -53,7 +53,7 @@ async function fetchMessages(chatId,page=1) {
   const token = localStorage.getItem("nexuschat:token");
   const limit = 50;
   const res = await fetch(
-    `http://localhost:${PORT}/api/messages?chatId=${chatId}&username=${currentUSER.username}`,
+    `http://localhost:${PORT}/api/messages?chatId=${chatId}&username=${currentUSER.username}&page=${page}&limit=${limit}`,
     {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -522,9 +522,8 @@ function renderMessages(chatId) {
     typingIndicator.style.display = "none";
   }
 
-  if (shouldAutoScroll()) {
-    messagesContainer.scrollTop = messagesContainer.scrollHeight; 
-  }
+  
+  messagesContainer.scrollTop = messagesContainer.scrollHeight;
 }
 function shouldAutoScroll() {
   const threshold = 150;
@@ -688,7 +687,7 @@ socket.on("receive_message", (message) => {
   // socket.emit("message_delivered",{username})
 
   addNewMessage(senderId, newMessage);
-  shouldAutoScroll();
+  // shouldAutoScroll();
 
   if (senderId === activeChatId) {
     markMessagesAsRead(senderId);
@@ -698,6 +697,9 @@ socket.on("receive_message", (message) => {
       receiverUsername: senderId,
     });
   } else {
+    if (shouldAutoScroll()) {
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
     showNotification(
       "New Message",
       "info",
