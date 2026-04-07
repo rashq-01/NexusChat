@@ -52,10 +52,12 @@ function initializeSocket(httpServer) {
 
     socket.on("disconnect", async () => {
       try {
-        console.log("🔥 DISCONNECT FIRED:", username, socket.id);
+        console.log("DISCONNECT FIRED:", username, socket.id);
         console.log(
           `User disconnecting : ${username} with socket ${socket.id}`,
         );
+        const sockets = await socketManager.getUserSockets(username);
+        console.log("AFTER DISCONNECT sockets : ",sockets);
         const result = await socketManager.removeUserSocket(socket.id);
 
         // await subscriber.unsubscribe("chat:messages");

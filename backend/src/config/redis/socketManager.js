@@ -9,7 +9,7 @@ class SocketManager {
 
       pipeline.sAdd(`user:sockets:${username}`, socketId);
       pipeline.set(`socket:user:${socketId}`, username);
-      pipeline.sAdd(`online:user:`,username);
+      pipeline.sAdd(`online:users:`,username);
       //setting expiry
       pipeline.expire(`user:sockets:${username}`, 86400);
       pipeline.expire(`socket:user:${socketId}`, 86400);
@@ -43,7 +43,7 @@ class SocketManager {
         const remainingSockets = await client.sCard(`user:sockets:${username}`);
         if (remainingSockets == 0) {
           await client.del(`user:sockets:${username}`);
-          await client.sRem("online:users",username);
+          await client.sRem("online:users:",username);
           console.log(`${username} is now completely offline`);
 
           const onlineUsers = await this.getAllOnlineUsers();
@@ -101,7 +101,7 @@ class SocketManager {
   async getAllOnlineUsers() {
     try {
       const client = redisClient.getClient();
-      const usernames = await client.sMembers("online:users");
+      const usernames = await client.sMembers("online:users:");
       
       return usernames.map(username => ({username}));
     } catch (err) {
@@ -154,15 +154,24 @@ class SocketManager {
           console.log(`🧹 Cleaned up empty user set: ${key}`);
         }
       }
+
+      const usernames = await client.sMembers("online:users:");
+      for(const username of usernames){
+        const count = await client.sCard(`user:sockets:${username}`);
+        if(count==0){
+          await client.sRem("online:users:",username);
+          console.log(`Removed stale user from online set : ${username}`)
+        }
+      }
     } catch (err) {
       console.log("Error during cleanup", err.message);
     }
   }
 
   async forceCleanup() {
-    console.log("🧹 Running force cleanup...");
+    console.log(" Running force cleanup...");
     await this.cleanup();
-    console.log("✅ Cleanup complete");
+    console.log("Cleanup complete");
   }
 
   // Graceful shutdown cleanup
@@ -202,9 +211,9 @@ class SocketManager {
           // remove user socket set
           await client.del(`user:sockets:${username}`);
 
-          console.log(`✅ Cleaned user: ${username}`);
+          console.log(`Cleaned user: ${username}`);
         } catch (err) {
-          console.error(`❌ Failed cleaning ${username}:`, err.message);
+          console.error(`Failed cleaning ${username}:`, err.message);
         }
       }
 
@@ -216,7 +225,7 @@ class SocketManager {
       }
 
       //4. removing all online:users
-      await client.del("online:users");
+      await client.del("online:users:");
 
       //  5. closing socket.io server
       if (io) {

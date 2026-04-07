@@ -9,6 +9,7 @@ async function presenceSocket(socket, io) {
     const wasOffline = !(await socketManager.isUserOnline(username));
     await socketManager.addUserSocket(username, socket.id);
     const onlineUsers = await socketManager.getAllOnlineUsers();
+    console.log(onlineUsers)
 
     socket.emit("onlineUsersSnapshot", {
       users: onlineUsers.map((u) => u.username),
