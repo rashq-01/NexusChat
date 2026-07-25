@@ -13,11 +13,12 @@ function createApp(loginLimiter) {
   const app = express();
 
   //Middlewares
-  app.use(cors({
-    origin: process.env.ALLOWED_ORIGINS?.split(",") || "http://localhost:80",
-    methods: ["GET","POST"],
-    credentials: true,
-  }));
+  // app.use(cors({
+  //   origin: process.env.ALLOWED_ORIGINS?.split(",") || "http://localhost:80",
+  //   methods: ["GET","POST"],
+  //   credentials: true,
+  // }));
+  app.use(cors());
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
   const frontendPath = path.join(__dirname, "../../frontend");
