@@ -5,7 +5,9 @@ if(!token){
 }
 import { HOST } from "/src/js/HOSTS.js";
 
-const socket = io(HOST, {
+const API_BASE_URL = "https://nexuschat-ppgc.onrender.com";
+
+const socket = io(API_BASE_URL, {
   auth: {
     username: currentUSER.username,
     token : token,
