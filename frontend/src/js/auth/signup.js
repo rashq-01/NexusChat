@@ -1,5 +1,5 @@
 // Background animation
-import { HOST, PORT , API_BASE_URL} from "/src/js/API.js";
+import { API_BASE_URL} from "/src/js/API.js";
 
 function createBackgroundAnimation() {
   const bgAnimation = document.getElementById("bgAnimation");
