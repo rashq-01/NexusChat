@@ -32,6 +32,13 @@ function createApp(loginLimiter) {
   app.use("/api/auth", authRoute);
   app.use("/api/messages", authMiddleware, chatRouter);
   app.use("/api/test", testRoute);
+  app.get("/env-test", (req, res) => {
+  res.json({
+    email: process.env.EMAIL,
+    api: process.env.API_BASE_URL,
+    passwordLength: process.env.PASSWORD?.length,
+  });
+});
 
   //Global Error Handler
   app.use((req, res) => {
