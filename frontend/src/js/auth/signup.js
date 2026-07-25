@@ -499,27 +499,27 @@ function updateResendCountdown() {
 }
 
 // Simulate sending verification email
-// function sendVerificationEmail() {
-//   showMessage(
-//     "info",
-//     `Verification email sent to ${formData.email}. Check your inbox.`,
-//   );
+function sendVerificationEmail() {
+  showMessage(
+    "info",
+    `Verification email sent to ${formData.email}. Check your inbox.`,
+  );
 
-//   // In a real application, this would make an API call to your backend
-//   // For demo purposes, we'll simulate the email sending
-//   console.log(`[DEMO] Verification email would be sent to: ${formData.email}`);
-//   console.log(
-//     `[DEMO] Email content: Verify your NexusChat account by clicking: http://localhost:3000/verify-email?token=DEMO_TOKEN_${formData.username}`,
-//   );
+  // In a real application, this would make an API call to your backend
+  // For demo purposes, we'll simulate the email sending
+  console.log(`[DEMO] Verification email would be sent to: ${formData.email}`);
+  console.log(
+    `[DEMO] Email content: Verify your NexusChat account by clicking: http://localhost:3000/verify-email?token=DEMO_TOKEN_${formData.username}`,
+  );
 
-//   // Show success message
-//   setTimeout(() => {
-//     showMessage(
-//       "success",
-//       "Verification email sent successfully! Please check your inbox.",
-//     );
-//   }, 1000);
-// }
+  // Show success message
+  setTimeout(() => {
+    showMessage(
+      "success",
+      "Verification email sent successfully! Please check your inbox.",
+    );
+  }, 1000);
+}
 
 // Initialize
 document.addEventListener("DOMContentLoaded", function () {
@@ -634,7 +634,7 @@ document.addEventListener("DOMContentLoaded", function () {
             alert(data.message);
             return;
           }
-          // sendVerificationEmail();
+          sendVerificationEmail();
           goToStep(3);
 
           // Reset button state
@@ -669,7 +669,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Simulate resending email
     setTimeout(() => {
-      // sendVerificationEmail();
+      sendVerificationEmail();
       resendLink.innerHTML = originalText;
       startResendCooldown();
     }, 1000);
