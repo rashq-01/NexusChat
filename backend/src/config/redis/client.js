@@ -11,7 +11,7 @@ class RedisClient {
     try {
       // Main client
       this.client = redis.createClient({
-        url: "process.env.REDIS_URL",
+        url: process.env.REDIS_URL,
         // url: process.env.REDIS_URL || "redis://127.0.0.1:6379",
         socket: {
           reconnectStrategy: (retries) => {
