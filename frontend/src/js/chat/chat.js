@@ -12,7 +12,7 @@ import {
   setActiveChatId,
 } from "/src/js/auth/chatState.js";
 
-const API_BASE_URL = "https://nexuschat.onrender.com";
+const API_BASE_URL = "https://nexuschat-ppgc.onrender.com";
 
 // Get data from localStorage
 const currentUSER = JSON.parse(localStorage.getItem("nexuschat:userCredentials")) || {
@@ -56,7 +56,7 @@ async function fetchMessages(chatId,page=1) {
   const token = localStorage.getItem("nexuschat:token");
   const limit = 50;
   const res = await fetch(
-    `{API_BASE_URL}/api/messages?chatId=${chatId}&username=${currentUSER.username}&page=${page}&limit=${limit}`,
+    `${API_BASE_URL}/api/messages?chatId=${chatId}&username=${currentUSER.username}&page=${page}&limit=${limit}`,
     {
       headers: {
         Authorization: `Bearer ${token}`,

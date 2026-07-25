@@ -1,5 +1,5 @@
 import { HOST , PORT } from "/src/js/HOSTS.js";
-const API_BASE_URL = "https://nexuschat.onrender.com";
+const API_BASE_URL = "https://nexuschat-ppgc.onrender.com";
 
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     return;
   }
   try {
-    const res = await fetch(`{API_BASE_URL}/api/auth/verify-token`, {
+    const res = await fetch(`${API_BASE_URL}/api/auth/verify-token`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -155,7 +155,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // Show loading state
     loginButton.disabled = true;
     buttonText.innerHTML = '<div class="loading"></div> Signing in...';
-    const response = await fetch(`API_BASE_URL/api/auth/login`, {
+    const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

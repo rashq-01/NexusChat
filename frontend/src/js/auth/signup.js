@@ -1,6 +1,6 @@
 // Background animation
 import { HOST, PORT } from "/src/js/HOSTS.js";
-const API_BASE_URL = "https://nexuschat.onrender.com";
+const API_BASE_URL = "https://nexuschat-ppgc.onrender.com";
 
 function createBackgroundAnimation() {
   const bgAnimation = document.getElementById("bgAnimation");
@@ -611,7 +611,7 @@ document.addEventListener("DOMContentLoaded", function () {
           '<div class="loading"></div> Creating Account...';
         try {
           const response = await fetch(
-            `{API_BASE_URL}/api/auth/register`,
+            `${API_BASE_URL}/api/auth/register`,
             {
               method: "POST",
               headers: {
