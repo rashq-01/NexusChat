@@ -3,26 +3,7 @@ require("dotenv").config();
 
 const sendEmail = async ({ to, subject, html }) => {
   try {
-    console.log("Starting email...");
-    console.log("EMAIL:", process.env.EMAIL);
-    console.log("PASSWORD EXISTS:", !!process.env.PASSWORD);
-
-    const transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com",
-      port: 465,
-      secure: true,
-      auth: {
-        user: process.env.EMAIL,
-        pass: process.env.PASSWORD,
-      },
-      connectionTimeout: 10000,
-      greetingTimeout: 10000,
-      socketTimeout: 10000,
-    });
-
-    console.log("Verifying SMTP...");
-    await transporter.verify();
-    console.log("SMTP Verified");
+    console.log("Before sendMail");
 
     const info = await transporter.sendMail({
       from: `"NexusChat" <${process.env.EMAIL}>`,
@@ -31,13 +12,11 @@ const sendEmail = async ({ to, subject, html }) => {
       html,
     });
 
-    console.log("Mail sent:", info.messageId);
-    return info;
-
+    console.log("After sendMail");
+    console.log(info);
   } catch (err) {
-    console.error("MAIL ERROR:");
+    console.error("ERROR:");
     console.error(err);
-    throw err;
   }
 };
 
