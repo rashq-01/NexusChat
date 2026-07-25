@@ -1,28 +1,31 @@
-require("dotenv").config();
-const nodemailer = require("nodemailer");
-
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: Number(process.env.SMTP_PORT),
-  secure: false, // 587 uses STARTTLS
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-});
+const axios = require("axios");
 
 const sendEmail = async ({ to, subject, html }) => {
   try {
-    await transporter.sendMail({
-      from: `"NexusChat" <${process.env.EMAIL}>`,
-      to,
-      subject,
-      html,
-    });
+    const response = await axios.post(
+      "https://api.brevo.com/v3/smtp/email",
+      {
+        sender: {
+          name: "NexusChat",
+          email: process.env.EMAIL,
+        },
+        to: [{ email: to }],
+        subject,
+        htmlContent: html,
+      },
+      {
+        headers: {
+          "api-key": process.env.BREVO_API_KEY,
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
-    console.log("Email sent successfully");
+    console.log("Mail sent:", response.data);
   } catch (err) {
-    console.error("Email Error:", err);
+    console.error(
+      err.response?.data || err.message
+    );
     throw err;
   }
 };
