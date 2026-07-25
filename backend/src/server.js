@@ -45,7 +45,7 @@ async function startServer() {
 
     // starting server
     server.listen(PORT, () => {
-      console.log(`Server started on http://localhost:${PORT}`);
+      console.log(`Server started on ${PORT}`);
     });
     let isShuttingDown = false;
     // graceful shutdown function

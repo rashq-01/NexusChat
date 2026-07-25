@@ -8,6 +8,7 @@ const sendEmail = require("../utils/nodemailer");
 const asyncHandler = require("../utils/asyncHandler");
 const redis = require("../config/redis/client");
 const Chat = require("../models/chat");
+const API_BASE_URL = window.location.hostname === "localhost" ? "http://localhost:5000" : "https://nexuschat.onrender.com";
 
 const registerUser = asyncHandler(async function registerUser(req, res) {
   const { firstName, lastName, username, email, password } = req.body;
@@ -37,7 +38,7 @@ const registerUser = asyncHandler(async function registerUser(req, res) {
   user.emailVerificationToken = token;
   user.emailVerificationExpires = Date.now() + 24 * 60 * 60 * 1000; //24hr
 
-  const verifyUrl = `http://localhost:80/api/auth/verify-email?token=${token}`;
+  const verifyUrl = `{API_BASE_URL}/api/auth/verify-email?token=${token}`;
 
   await user.save();
 
