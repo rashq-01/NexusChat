@@ -1,23 +1,30 @@
 require("dotenv").config();
+const nodemailer = require("nodemailer");
 
-const { Resend } = require("resend");
+const transporter = nodemailer.createTransport({
+  host: process.env.SMTP_HOST,
+  port: Number(process.env.SMTP_PORT),
+  secure: false, // 587 uses STARTTLS
+  auth: {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
+  },
+});
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const sendEmail = async ({ to, subject, html }) => {
+  try {
+    await transporter.sendMail({
+      from: `"NexusChat" <${process.env.EMAIL}>`,
+      to,
+      subject,
+      html,
+    });
 
-const sendEmail = async ({to,subject,html})=>{
-  const { data, error } = await resend.emails.send({
-    from : `"NexusChat" <${process.env.EMAIL}>`,
-    to,
-    subject,
-    html,
-  });
-
-  if(error){
-    console.error(error);
-    throw new Error(error.message);
+    console.log("Email sent successfully");
+  } catch (err) {
+    console.error("Email Error:", err);
+    throw err;
   }
-  console.log("Mail sent : ",data);
 };
 
-module.exports = sendEmail
-
+module.exports = sendEmail;
