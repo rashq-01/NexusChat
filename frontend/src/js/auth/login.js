@@ -1,5 +1,5 @@
 import { HOST , PORT } from "/src/js/HOSTS.js";
-const API_BASE_URL = window.location.hostname === "localhost" ? "http://localhost:5000" : "https://nexuschat.onrender.com";
+const API_BASE_URL = "https://nexuschat.onrender.com";
 
 
 document.addEventListener("DOMContentLoaded", async () => {

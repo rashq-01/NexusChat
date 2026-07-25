@@ -12,7 +12,7 @@ import {
   setActiveChatId,
 } from "/src/js/auth/chatState.js";
 
-const API_BASE_URL = window.location.hostname === "localhost" ? "http://localhost:5000" : "https://nexuschat.onrender.com";
+const API_BASE_URL = "https://nexuschat.onrender.com";
 
 // Get data from localStorage
 const currentUSER = JSON.parse(localStorage.getItem("nexuschat:userCredentials")) || {
