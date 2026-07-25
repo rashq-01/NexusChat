@@ -8,7 +8,7 @@ const sendEmail = require("../utils/nodemailer");
 const asyncHandler = require("../utils/asyncHandler");
 const redis = require("../config/redis/client");
 const Chat = require("../models/chat");
-const API_BASE_URL = "https://nexuschat-ppgc.onrender.com";
+const API_BASE_URL = process.env.API_BASE_URL
 
 const registerUser = asyncHandler(async function registerUser(req, res) {
   const { firstName, lastName, username, email, password } = req.body;

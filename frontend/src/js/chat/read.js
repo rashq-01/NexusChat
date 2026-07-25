@@ -1,8 +1,3 @@
-// Assume these are already available
-// socket              -> connected socket.io client
-// currentUserId       -> logged-in user id
-// activeChatId        -> currently open chat id
-// messageList         -> container holding message DOM elements
 
 import {currentUSER} from "/src/js/chat/chat.js"
 

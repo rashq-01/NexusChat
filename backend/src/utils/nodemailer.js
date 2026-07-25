@@ -2,6 +2,7 @@ const nodemailer = require("nodemailer");
 require("dotenv").config();
 
 const sendEmail = async ({to,subject,html})=>{
+    console.log("Email service stared.")
     const transporter = nodemailer.createTransport({
         service : "gmail",
         auth : {
@@ -17,5 +18,6 @@ const sendEmail = async ({to,subject,html})=>{
         html,
     });
 }
+console.log("Email status:  ",sendEmail);
 
 module.exports = sendEmail;

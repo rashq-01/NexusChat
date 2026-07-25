@@ -1,5 +1,5 @@
 import socket from "/src/js/chat/socket.js";
-import { PORT } from "/src/js/HOSTS.js";
+import { PORT, API_BASE_URL} from "/src/js/API.js";
 import {
   switchChat,
   updateSendButton,
@@ -11,8 +11,6 @@ import {
   users,
   setActiveChatId,
 } from "/src/js/auth/chatState.js";
-
-const API_BASE_URL = "https://nexuschat-ppgc.onrender.com";
 
 // Get data from localStorage
 const currentUSER = JSON.parse(localStorage.getItem("nexuschat:userCredentials")) || {

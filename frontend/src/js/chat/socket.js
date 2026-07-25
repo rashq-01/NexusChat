@@ -3,9 +3,8 @@ const token = localStorage.getItem("nexuschat:token");
 if(!token){
   window.location.href = '/';
 }
-import { HOST } from "/src/js/HOSTS.js";
+import { HOST , API_BASE_URL} from "/src/js/API.js";
 
-const API_BASE_URL = "https://nexuschat-ppgc.onrender.com";
 
 const socket = io(API_BASE_URL, {
   auth: {

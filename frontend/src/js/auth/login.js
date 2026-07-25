@@ -1,5 +1,4 @@
-import { HOST , PORT } from "/src/js/HOSTS.js";
-const API_BASE_URL = "https://nexuschat-ppgc.onrender.com";
+import { HOST , PORT , API_BASE_URL} from "/src/js/API.js";
 
 
 document.addEventListener("DOMContentLoaded", async () => {
