@@ -1,4 +1,4 @@
-import { HOST , PORT , API_BASE_URL} from "/src/js/API.js";
+import { API_BASE_URL} from "/src/js/API.js";
 
 
 document.addEventListener("DOMContentLoaded", async () => {

@@ -3,7 +3,7 @@ const token = localStorage.getItem("nexuschat:token");
 if(!token){
   window.location.href = '/';
 }
-import { HOST , API_BASE_URL} from "/src/js/API.js";
+import { API_BASE_URL} from "/src/js/API.js";
 
 
 const socket = io(API_BASE_URL, {
