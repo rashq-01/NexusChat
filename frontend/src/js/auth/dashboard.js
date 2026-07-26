@@ -199,7 +199,7 @@ async function switchChat(chatId) {
   }
 
   if (messageInput.value.length > 0) {
-    smartReplies.style.display = "flex";
+    smartReplies.style.display = "none";
   } else {
     smartReplies.style.display = "none";
   }
@@ -288,21 +288,21 @@ function setupEventListeners() {
     updateSendButton();
 
     if (messageInput.value.length > 0) {
-      smartReplies.style.display = "flex";
+      smartReplies.style.display = "non";
     } else {
       smartReplies.style.display = "none";
     }
   });
 
   // Smart replies
-  smartReplies.querySelectorAll(".smart-reply").forEach((reply) => {
-    reply.addEventListener("click", () => {
-      messageInput.value = reply.dataset.reply;
-      adjustTextareaHeight();
-      updateSendButton();
-      messageInput.focus();
-    });
-  });
+  // smartReplies.querySelectorAll(".smart-reply").forEach((reply) => {
+  //   reply.addEventListener("click", () => {
+  //     messageInput.value = reply.dataset.reply;
+  //     adjustTextareaHeight();
+  //     updateSendButton();
+  //     messageInput.focus();
+  //   });
+  // });
 
   // Mobile menu button
   mobileMenuBtn.addEventListener("click", () => {

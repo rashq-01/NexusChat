@@ -51,6 +51,7 @@ function getPagination(chatId){
 }
 
 async function fetchMessages(chatId,page=1) {
+  console.log("Rendering messages");
   const token = localStorage.getItem("nexuschat:token");
   const limit = 50;
   const res = await fetch(
@@ -257,6 +258,7 @@ function updateCurrentUserInfo() {
 function handleResize() {
   isMobile = window.innerWidth <= 768;
   if (!isMobile && sidebar.classList.contains("active")) {
+    console.log("Sidebar closed");
     sidebar.classList.remove("active");
     overlay.classList.remove("active");
   }
@@ -395,6 +397,7 @@ function renderChatsList(filter = "") {
 
 // Render messages for a specific chat
 function renderMessages(chatId) {
+  console.log("Messages fetched");
   messagesContainer.innerHTML = "";
 
   const chatMessages = messages[chatId] || [];
@@ -718,6 +721,7 @@ async function updateMessageStatus(chatId) {
 
   if (chatMessages) {
     await fetchMessages(chatId);
+    console.log("Messages fetched");
     if (chatId === activeChatId && chatMessages?.at(-1).status!=='read') {
       renderMessages(chatId);
     }

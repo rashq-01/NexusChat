@@ -3,15 +3,15 @@ const bcrypt = require("bcryptjs");
 
 const userSchema = new mongoose.Schema(
   {
-    firstName : {
-      type : String,
-      required : true,
-      trim : true
+    firstName: {
+      type: String,
+      required: true,
+      trim: true,
     },
-    lastName : {
-      type : String,
-      required : true,
-      trim : true
+    lastName: {
+      type: String,
+      required: true,
+      trim: true,
     },
     username: {
       type: String,
@@ -43,6 +43,13 @@ const userSchema = new mongoose.Schema(
     emailVerificationExpires: {
       type: Date,
     },
+    forgotPasswordToken: {
+      type: String,
+    },
+
+    forgotPasswordTokenExpire: {
+      type: Date,
+    },
   },
   {
     timestamps: true,
@@ -59,8 +66,8 @@ userSchema.methods.comparePassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
-userSchema.index({ username: 1}); 
-userSchema.index({ createdAt: -1}); 
+userSchema.index({ username: 1 });
+userSchema.index({ createdAt: -1 });
 
 const User = mongoose.model("User", userSchema);
 module.exports = User;

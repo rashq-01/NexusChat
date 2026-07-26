@@ -186,15 +186,14 @@ document.addEventListener("DOMContentLoaded", function () {
     .querySelector(".forgot-password")
     .addEventListener("click", function (e) {
       e.preventDefault();
-      showSuccess(
-        "Password reset link would be sent to your email in a real application.",
-      );
+      showSuccess("Redirecting to the forgot page!");
+      window.location.href = "/public/forgotPassword.html";
     });
 
   // Sign up link
   signupLink.addEventListener("click", function (e) {
     e.preventDefault();
-    showSuccess("Redirecting to the signup page...");
+    showSuccess("Redirecting to the signup page!");
     window.location.href = "/public/signUp.html";
   });
 
