@@ -1,5 +1,5 @@
 import socket from "/src/js/chat/socket.js";
-import { PORT, API_BASE_URL} from "/src/js/API.js";
+import { API_BASE_URL} from "/src/js/API.js";
 import {
   switchChat,
   updateSendButton,
