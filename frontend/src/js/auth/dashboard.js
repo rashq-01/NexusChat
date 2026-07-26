@@ -26,7 +26,9 @@ import {
   setActiveChatId,
 } from "/src/js/auth/chatState.js";
 
-const currentUSER = JSON.parse(localStorage.getItem("nexuschat:userCredentials")) || {
+const currentUSER = JSON.parse(
+  localStorage.getItem("nexuschat:userCredentials"),
+) || {
   firstName: "John",
   lastName: "Doe",
   email: "john.doe@example.com",
@@ -135,28 +137,32 @@ function renderOnlineUsers() {
 }
 let scrollListenerAttached = false;
 
-function attachScrollListener(chatId){
-  if(scrollListenerAttached){
-    messagesContainer.removeEventListener("scroll",messagesContainer._scrollHandler);
+function attachScrollListener(chatId) {
+  if (scrollListenerAttached) {
+    messagesContainer.removeEventListener(
+      "scroll",
+      messagesContainer._scrollHandler,
+    );
   }
-  messagesContainer._scrollHandler = async function(){
-    if(messagesContainer.scrollTop > 80)return;
+  messagesContainer._scrollHandler = async function () {
+    if (messagesContainer.scrollTop > 80) return;
 
     const pagination = getPagination(chatId);
-    if(pagination.loading || !pagination.hasMore)return;
+    if (pagination.loading || !pagination.hasMore) return;
 
     pagination.loading = true;
 
     const prevScrollHeight = messagesContainer.scrollHeight;
-    
+
     const loader = document.createElement("div");
     loader.id = "msg-load-indicator";
-    loader.style.cssText = "text-align:center;padding:8px;font-size:13px;color:#8E8E93";
+    loader.style.cssText =
+      "text-align:center;padding:8px;font-size:13px;color:#8E8E93";
     loader.textContent = "Loading older messages...";
     messagesContainer.prepend(loader);
 
     const nextPage = pagination.page + 1;
-    await fetchMessages(chatId,nextPage);
+    await fetchMessages(chatId, nextPage);
 
     loader.remove();
     renderMessages(chatId);
@@ -164,9 +170,11 @@ function attachScrollListener(chatId){
     messagesContainer.scrollTop = newScrollHeight - prevScrollHeight;
 
     pagination.loading = false;
-
-  }
-  messagesContainer.addEventListener("scroll",messagesContainer._scrollHandler);
+  };
+  messagesContainer.addEventListener(
+    "scroll",
+    messagesContainer._scrollHandler,
+  );
   scrollListenerAttached = true;
 }
 // Switch to a different chat
@@ -175,7 +183,7 @@ async function switchChat(chatId) {
 
   setActiveChatId(chatId);
 
-  chatPagination[chatId] = {page:1, hasMore: true, loading:false};
+  chatPagination[chatId] = { page: 1, hasMore: true, loading: false };
 
   await fetchMessages(chatId);
   attachScrollListener(chatId);
@@ -188,7 +196,9 @@ async function switchChat(chatId) {
 
   renderChatsList();
 
-  if (messages[chatId]?.at(-1).status !== "read") {
+  const lastMessage = messages[chatId]?.at(-1);
+
+  if (!lastMessage || lastMessage.status !== "read") {
     renderMessages(chatId);
   }
 
@@ -862,8 +872,8 @@ async function init() {
   await initChats();
   renderChatsList();
   if (activeChatId) {
-    chatPagination[activeChatId] = {page: 1, hasMore:true, loading: false};
-    await fetchMessages(activeChatId,1);
+    chatPagination[activeChatId] = { page: 1, hasMore: true, loading: false };
+    await fetchMessages(activeChatId, 1);
     attachScrollListener(activeChatId);
     renderMessages(activeChatId);
   }
